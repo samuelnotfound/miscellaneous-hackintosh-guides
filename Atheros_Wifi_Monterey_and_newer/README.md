@@ -18,7 +18,10 @@ Currently confirmed working cards:
 * [`IO80211ElCap.kext`](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Wifi)
   * Only keep **AirportAtheros40.kext** from its Plugins folder.
 
- Set their **MinKernel** to `18.0.0`
+ Set their **MinKernel** to `18.0.0` 
+* [AMFIPass.kext](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Acidanthera) to partially re-enables AMFI, this can be handy if you're running into issues with an application you use related to AMFI.
+
+Set **MinKernel** to `21.0.0`, or `20.0.0` if you're multi-booting with Big Sur.
 
  #### For AR9565, import the set of patches ar9565.plist from this repo under Kernel -> Patches of your config.plist
 * Patches are based on ATH9Fixup source code. These patches will work with the injected **AirportAtheros40**. Wifi won't work without this.
@@ -65,12 +68,13 @@ Changing the secure boot status requires an NVRAM reset, or variables retained c
 |--------|------------|--------|
 | csr-active-config | 03080000 | Data | 
 
- - Disable AMFI by adding the following to your boot arguments.
+ - Disable AMFI by adding the following to your boot-args.
 
 | Key*   | Value      |   Type |
 |--------|------------|--------|
 | boot-args | amfi=0x80 | String |
 
+If you run into issues with Electron based apps after disabling SIP, ie: *Discord*, *Google Chrome*, *VS Code*, add the following to your boot-arg `ipc_control_port_options=0`.
 
 Once the changes have been applied, reboot, reset your NVRAM, and OpenCore Legacy Patcher should now show the option to apply root patches.
 
@@ -137,8 +141,6 @@ Open the OCLP app, then apply root patches.
 # Other Important Notes: 
 - Once your root volume has been patched, SIP must remain at least partially disabled, or you will not be able to properly boot your system.
 - Delta updates are unavailable to root-patched systems. Updates will show as the full 12GB+ installers. If necessary, you can revert your patches and update, then re-apply them, but do so at your own risk.
-- If you run into issues with Electron based apps after disabling SIP, ie: *Discord*, *Google Chrome*, *VS Code*, you can try adding the following boot-arg `ipc_control_port_options=0`.
-* AMFI can be partially re-enabled using [AMFIPass.kext](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Acidanthera) from OCLP. This can be handy if you're running into issues with an application you use related to AMFI.
 * Alternatively, you could use chunnann's patched <a href="https://www.insanelymac.com/forum/topic/312045-atheros-wireless-driver-os-x-101112-for-unsupported-cards/?do=findComment&comment=2509900">AirPortAtheros40.kext </a> 10.11.x (El Capitan). If using it, make sure to:
   * Delete <code>CodeSignature</code> and <code>Version.plist</code>
   * Open <code>Info.plist</code>, find <code>com.apple.iokit.IO80211Family</code>, and replace it with <code>com.apple.iokit.IO80211ElCap</code>
