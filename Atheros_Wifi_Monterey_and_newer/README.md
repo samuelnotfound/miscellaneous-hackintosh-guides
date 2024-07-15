@@ -68,13 +68,14 @@ Changing the secure boot status requires an NVRAM reset, or variables retained c
 |--------|------------|--------|
 | csr-active-config | 03080000 | Data | 
 
+If you run into issues with Electron based apps after disabling SIP, ie: *Discord*, *Google Chrome*, *VS Code*, add the following to your boot-arg `ipc_control_port_options=0`.
+
+
  - Disable AMFI by adding the following to your boot-args.
 
 | Key*   | Value      |   Type |
 |--------|------------|--------|
 | boot-args | amfi=0x80 | String |
-
-If you run into issues with Electron based apps after disabling SIP, ie: *Discord*, *Google Chrome*, *VS Code*, add the following to your boot-arg `ipc_control_port_options=0`.
 
 Once the changes have been applied, reboot, reset your NVRAM, and OpenCore Legacy Patcher should now show the option to apply root patches.
 
