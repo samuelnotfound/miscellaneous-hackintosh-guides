@@ -19,7 +19,7 @@ Currently confirmed working cards:
   * Only keep **AirportAtheros40.kext** from its Plugins folder.
 
  Set their **MinKernel** to `18.0.0` 
-* [AMFIPass.kext](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Acidanthera) to partially re-enables AMFI, this can be handy if you're running into issues with an application you use related to AMFI.
+* [AMFIPass.kext](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Acidanthera) to partially re-enable AMFI, this can be handy if you're running into issues with an application you use related to AMFI.
 
 Set **MinKernel** to `21.0.0`, or `20.0.0` if you're multi-booting with Big Sur.
 
