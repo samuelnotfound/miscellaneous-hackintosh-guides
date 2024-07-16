@@ -23,10 +23,6 @@ Currently confirmed working cards:
 
 Set **MinKernel** to `21.0.0`, or `20.0.0` if you're multi-booting with Big Sur.
 
- #### For AR9565, import the set of patches ar9565.plist from this repo under Kernel -> Patches of your config.plist
-* Patches are based on ATH9Fixup source code. These patches will work with the injected **AirportAtheros40**. Wifi won't work without this.
-
-
 ### 2. Device Properties
 
 
@@ -78,6 +74,10 @@ Changing the secure boot status requires an NVRAM reset, or variables retained c
 If you run into issues with Electron based apps after disabling SIP, ie: *Discord*, *Google Chrome*, *VS Code*, add the following to your boot-arg `ipc_control_port_options=0`.
 
 Once the changes have been applied, reboot, reset your NVRAM, and OpenCore Legacy Patcher should now show the option to apply root patches.
+
+#### For AR9565, if after following the guide above but WiFi is still not working, import the set of patches ar9565.plist from this repo under Kernel -> Patches of your config.plist
+* Patches are based on ATH9Fixup source code. These patches will work with the injected **AirportAtheros40**. Wifi won't work without this.
+
 
 # Supplemental Guide: Assigning an ACPI Name
 
