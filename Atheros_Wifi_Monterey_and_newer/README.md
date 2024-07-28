@@ -140,6 +140,7 @@ You can now see the `IOName` is properly injected/spoofed. OCLP will now recogni
 Open the OCLP app, then apply root patches.
 
 # Other Important Notes: 
+- Remove `amfi=0x80` in your boot-args after applying root patched with OCLP, `AMFIPass.kext` will allow systems with patched root volume to boot without this boot arg.
 - Once your root volume has been patched, SIP must remain at least partially disabled, or you will not be able to properly boot your system.
 - Delta updates are unavailable to root-patched systems. Updates will show as the full 12GB+ installers. If necessary, you can revert your patches and update, then re-apply them, but do so at your own risk.
 * Alternatively, you could use chunnann's patched <a href="https://www.insanelymac.com/forum/topic/312045-atheros-wireless-driver-os-x-101112-for-unsupported-cards/?do=findComment&comment=2509900">AirPortAtheros40.kext </a> 10.11.x (El Capitan). If using it, make sure to:
