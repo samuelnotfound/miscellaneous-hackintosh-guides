@@ -1,15 +1,15 @@
-# Restore Broadcom Ethernet on Big Sur, Monterey, Ventura and Sonoma
-Grab [**CatalinaBCM5701Ethernet.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Ethernet) provided in OCLP repo.
+# Restore Broadcom Ethernet on Big Sur - Sequoia
+Grab [**CatalinaBCM5701Ethernet.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Ethernet) provided by OCLP.
 
 #### How to use: 
-1. Add your device-id in the kext's Info.plist, or add these device properties:
+1. Either add your device-id in the kext's Info.plist, **or** add these device properties:
 
 |Key* | Value |Type |
 |-|-|-|
 | device-id | B4160000 | Data |
 | compatible | pci14e4,16b4 | String |
 
-2. Add kext to your OC/Kexts folder, and make sure it is reflected in your config.plist.
+2. Add the kext to your OC/Kexts folder, and make sure it is reflected in your config.plist.
 3. Set MinKernel to **20.0.0**. <br>
 
 <br>
@@ -33,4 +33,4 @@ You could use [HexFriend](http://hexfiend.com) to find and replace these values 
 Credits: 
 - **[Sunki](https://www.applelife.ru/threads/patching-applebcm5701ethernet-kext.27866/page-8#post-930901)** and **[Acidanthera](https://github.com/acidanthera/OpenCorePkg/blob/cb591b7671215b31dc4a2bc5b1e9da9c92eaebf4/Docs/Sample.plist#L837)** for the source of patch
 - **[Andrey1970AppleLife](https://www.applelife.ru/threads/patching-applebcm5701ethernet-kext.27866/page-9#post-1031837)** for [guide](https://www.applelife.ru/threads/patching-applebcm5701ethernet-kext.27866/page-7#post-869709) and cosmetic patch I used in this guide
-- Dortania for patched CatalinaBCM5701Ethernet
+- Dortania/Khronokernel for patched CatalinaBCM5701Ethernet
