@@ -34,8 +34,6 @@ Download, and add these kexts in your OC/Kexts folder, and make sure they are re
 | device-id |  | Data |
 
 * These are used to spoof to one of the cards listed inside **AirportAtheros40**'s Info.plist. **IOName** helps OCLP detect "**Legacy Wireless**"
-  
-> Also _"...the kext has internal PCIID checks meaning simply expanding the device-id list won't work."_ - [Khronokernel](https://github.com/khronokernel/IO80211-Patches?tab=readme-ov-file#unsupported-atheros-chipsets)
 
 Atheros cards listed inside **AirportAtheros40**'s **Info.plist**:
 ||`IOName` and `compatible`|`device-id`|Note|
@@ -52,17 +50,17 @@ Example:
   
 * AR9485 with an IOName `pci168c,32`, can set its `IOName` and `compatible` to `pci168c,30`, and its `device-id` to `30000000`.
 
-Using any `device-id`/`IOName` from **AirportAtheros40**'s Info.plist will work anyway,  just choose the closest one.
+You can actually choose **any** from the list,  just choose the closest one.
 
 ### 3. Misc 
 
 - Set Secure Boot Model to `Disabled`.
-     - Changing the secure boot status requires an NVRAM reset, or variables retained can cause issues with IMG4 verification in macOS. - as per [Khronokernel](https://github.com/mrlimerunner/sonoma-wifi-hacks?tab=readme-ov-file#pre-root-patching)
-	- [ApECID](https://dortania.github.io/OpenCore-Post-Install/universal/security/applesecureboot.html#apecid) *cannot* be used with root patches, it needs to be disabled and remain disabled.
+     - Changing the secure boot status requires an NVRAM reset, or variables retained can cause issues with IMG4 verification in macOS.
+       - According to [Khronokernel](https://github.com/mrlimerunner/sonoma-wifi-hacks?tab=readme-ov-file#pre-root-patching)
  
 ### 4. NVRAM
 
-Add the following NVRAM parameters under `Add` and `Delete`
+Add the following NVRAM parameters under `Add` and `Delete`:
 
 | Key*   | Value      |   Type |
 |--------|------------|--------|
@@ -71,13 +69,12 @@ Add the following NVRAM parameters under `Add` and `Delete`
 
 - `ipc_control_port_options=0`: workaround if you run into issues with Electron based apps after disabling SIP, ie: *Discord*, *Google Chrome*, *VS Code*.
 - `amfi=0x80`: disables AMFI, required in order for OCLP to appply root patches.
--  `csr-active-config` sets SIP (System Integrity Protection) to a reduced state.
+-  `csr-active-config` of `03080000` sets SIP (System Integrity Protection) to a reduced state.
 
 
 Once the changes have been applied, reboot, reset your NVRAM, and OpenCore Legacy Patcher should now show the option to apply root patches.
 
-#### For AR9565, if after following but WiFi is still not working, import the set of patches ar9565.plist from this repo under Kernel -> Patches of your config.plist
-* Patches are based on ATH9Fixup source code. These patches will work with the injected **AirportAtheros40**.
+> For AR9565, if after following but WiFi is still not working, import the set of patches ar9565.plist from this repo under Kernel -> Patches of your config.plist. Patches are based on ATH9Fixup source code. These patches will work with the injected **AirportAtheros40**.
 
 
 # Supplemental Guide: Assigning an ACPI Name
@@ -86,13 +83,12 @@ Once the changes have been applied, reboot, reset your NVRAM, and OpenCore Legac
 If you have already followed the guide above, but OCLP does not prompt a "**Legacy Wireless**", then your Wifi card is not enumerated in ACPI at all. OpenCore can only overwrite properties for named devices in ACPI.
 
 #### Example:
-In this case, it ends with `pci168c,36`, which tells us it's **unnamed**, the `IOName` we try to inject is **not** applied.
+In this case, it ends with `pci168c,36`, which tells us it's **unnamed** (not a four letter name), the `IOName` we try to inject/spoof is **not** applied.
 ![](screenshots/hackintool_pcie_tab.png)
 
-If it has a name such as `ARPT`, The `IOName` we try to inject is applied.
+If it has a name such as `ARPT`(has a four letter name), the `IOName` we try to inject/spoof is applied.
 ![](screenshots/hackintool_pci1683,36_to_ARPT.png)
 
-It should have a four letter name instead of it starting as `pci`xxxx,xx.
 
 ### Assign an ACPI Name
 
