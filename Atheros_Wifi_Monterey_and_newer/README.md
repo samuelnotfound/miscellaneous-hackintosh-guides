@@ -21,7 +21,7 @@ Download, and add these kexts in your OC/Kexts folder, and make sure they are re
  Set their **MinKernel** to `18.0.0` 
 * [**AMFIPass.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Acidanthera)
   * This will partially re-enable AMFI, it can be handy if you'll run into permission issues due to disabled AMFI.
-  * This also allows root patched system to boot without the `amfi=0x80` boot-arg after root-patches are applied.
+  * This also allows the system to boot without the `amfi=0x80` boot-arg after root-patches are applied.
 
  Set **MinKernel**: `20.0.0`
 
