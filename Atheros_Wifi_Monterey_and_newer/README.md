@@ -1,30 +1,28 @@
 # Restoring Atheros WiFi Functionality on macOS Monterey, Ventura, and Sonoma. 
 
 > [!Note]
-> OpenCore Legacy Patcher does not officially support being run on non-Apple Hardware. The OCLP Discord does not provide any support for hacks using OCLP. 
-
-> Some information are based of MrLimeRunner's [sonoma-wifi-hacks](https://github.com/mrlimerunner/sonoma-wifi-hacks/blob/main/README.md) guide.
-
-Note that macOS only has a limited support for Atheros cards.
+> OpenCore Legacy Patcher does not officially support being run on non-Apple Hardware. macOS only has a limited support for Atheros cards. Airport-related features do not work, and only few models can only be used for WiFi.
 
 Currently confirmed working cards:
-* AR9565 (with additional patches)
+* AR9565
 * AR9287
 * AR9485
 
 ### 1. Kernel
+Download and add these kexts in your OC/Kexts folder, and make sure it is reflected in config.plist.
 
-* [`corecaptureElCap.kext`](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Wifi)
-* [`IO80211ElCap.kext`](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Wifi)
-  * Only keep **AirportAtheros40.kext** from its Plugins folder.
+* [**corecaptureElCap.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Wifi)
+* [**IO80211ElCap.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Wifi)
+  * This kext has kexts within its Plugins folder, keep **AirportAtheros40.kext** and delete the rest.
 
  Set their **MinKernel** to `18.0.0` 
-* [AMFIPass.kext](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Acidanthera) to partially re-enable AMFI, this can be handy if you're running into issues with an application you use related to AMFI.
+* [**AMFIPass.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Acidanthera)
+  * This will partially re-enable AMFI, it can be handy if you'll run into permission issues due to disabled AMFI.
+  * This also allows root patched system to boot without the aforementioned boot-arg after root-patching.
 
-Set **MinKernel** to `21.0.0`, or `20.0.0` if you're multi-booting with Big Sur.
+ Set **MinKernel**: `20.0.0`
 
 ### 2. Device Properties
-
 
 | Key*   | Value      |   Type |
 |--------|------------|--------|
@@ -32,10 +30,10 @@ Set **MinKernel** to `21.0.0`, or `20.0.0` if you're multi-booting with Big Sur.
 | compatible|  | String |
 | device-id |  | Data |
 
-* The **IOName** allows OCLP to detect a "**Legacy Wireless**"
-* **device-id** and **compatible** should be spoofed to one of the cards listed inside AirportAtheros40's Info.plist.
+* The **IOName** makes OCLP detect the "**Legacy Wireless**"
+* **device-id** and **compatible** is used to spoofed to one of the compatible cards listed inside AirportAtheros40's Info.plist.
   
-> _"...the kext has internal PCIID checks meaning simply expanding the device-id list won't work."_ - [Khronokernel](https://github.com/khronokernel/IO80211-Patches?tab=readme-ov-file#unsupported-atheros-chipsets)
+> Also _"...the kext has internal PCIID checks meaning simply expanding the device-id list won't work."_ - [Khronokernel](https://github.com/khronokernel/IO80211-Patches?tab=readme-ov-file#unsupported-atheros-chipsets)
 
 Atheros cards listed inside **AirportAtheros40**'s **Info.plist**:
 ||`IOName` and `compatible`|`device-id`|Note|
@@ -48,8 +46,10 @@ Atheros cards listed inside **AirportAtheros40**'s **Info.plist**:
 |AR5418 Wireless Network Adapter| pci168c,24 | 24000000 ||
 
 Example:
-* AR9287 with an IOName `pci168c,2e`, must set its `IOName` and `compatible` to `pci168c,2a`, and its `device-id` to `2A000000`.
-* AR9485 with an IOName `pci168c,32`, must set its `IOName` and `compatible` to `pci168c,30`, and its `device-id` to `30000000`.
+* AR9287 with an IOName `pci168c,2e`, should set its `IOName` and `compatible` to `pci168c,2a`, and its `device-id` to `2A000000`.
+* AR9485 with an IOName `pci168c,32`, should set its `IOName` and `compatible` to `pci168c,30`, and its `device-id` to `30000000`.
+
+Using any `device-id`/`IOName` from **AirportAtheros40**'s **Info.plist** will work,  just choose the closest one.
 
 ### 3. Misc 
 
@@ -59,37 +59,38 @@ Changing the secure boot status requires an NVRAM reset, or variables retained c
  
 ### 4. NVRAM
 
- - Disable AMFI by adding the following to your boot-args.
+Add the following NVRAM parameters under `Add` and `Delete`
 
 | Key*   | Value      |   Type |
 |--------|------------|--------|
-| boot-args | amfi=0x80 | String |
-
-- Set SIP (System Integrity Protection) to a reduced state.
-
-| Key*   | Value      |   Type |
+| boot-args | amfi=0x80 ipc_control_port_options=0 | String |
 |--------|------------|--------|
 | csr-active-config | 03080000 | Data | 
 
-If you run into issues with Electron based apps after disabling SIP, ie: *Discord*, *Google Chrome*, *VS Code*, add the following to your boot-arg `ipc_control_port_options=0`.
+- `ipc_control_port_options=0`: workaround if you run into issues with Electron based apps after disabling SIP, ie: *Discord*, *Google Chrome*, *VS Code*.
+- `amfi=0x80`: disables AMFI, required in order for OCLP to appply root patches.
+-  `csr-active-config` sets SIP (System Integrity Protection) to a reduced state.
+
 
 Once the changes have been applied, reboot, reset your NVRAM, and OpenCore Legacy Patcher should now show the option to apply root patches.
 
-#### For AR9565, if after following the guide above but WiFi is still not working, import the set of patches ar9565.plist from this repo under Kernel -> Patches of your config.plist
+#### For AR9565, after following but WiFi is still not working, import the set of patches ar9565.plist from this repo under Kernel -> Patches of your config.plist
 * Patches are based on ATH9Fixup source code. These patches will work with the injected **AirportAtheros40**.
 
 
 # Supplemental Guide: Assigning an ACPI Name
 
 ### Issue Overview
-If you have already followed the guide above, but OCLP does not show a "**Legacy Wireless**". Your WiFi card is probably hidden under a PCI bridge, or not enumerated in ACPI at all. OpenCore can only overwrite properties for named devices in ACPI.
+If you have already followed the guide above, but OCLP does not prompt a "**Legacy Wireless**". Your Wifi card is not enumerated in ACPI at all. OpenCore can only overwrite properties for named devices in ACPI.
 
 #### Example:
-In this case, it ends with `pci168c,36`, which shows us it's **unnamed**, the `IOName` we try to inject is **not** applied.
+In this case, it ends with `pci168c,36`, which tells us it's **unnamed**, the `IOName` we try to inject is **not** applied.
 ![](screenshots/hackintool_pcie_tab.png)
 
 If it has a name such as `ARPT`, The `IOName` we try to inject is applied.
 ![](screenshots/hackintool_pci1683,36_to_ARPT.png)
+
+It should have a four letter name instead of it starting as `pci`xxxx,xx.
 
 ### Assign an ACPI Name
 
