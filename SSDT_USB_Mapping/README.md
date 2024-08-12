@@ -4,7 +4,7 @@
 > [!NOTE]  
 >  Disclaimer: I am not a developer, and my knowledge of ACPI is rather limited. 
 
-##### There are much better, easier, and recommended utilities in mapping USB ports - such as USBMap by CorpNewt, or USBToolBox by DhinakG.
+##### 🍎 There are much better, easier, and recommended utilities in mapping USB ports - such as USBMap by CorpNewt, or USBToolBox by DhinakG.
 
 Advantage of this method compared to other known methods:
 * macOS independent!
@@ -69,7 +69,7 @@ The following values for USB port types are possible:
 
 ## Renaming USB Controller
 
-USB controllers needs to be renamed in some SMBIOS. Refer to the Dortania's [OpenCore Install Guide](https://dortania.github.io/OpenCore-Post-Install/usb/system-preparation.html#checking-what-renames-you-need).
+Certian USB controllers needs to be renamed for some SMBIOS. Refer to the Dortania's [OpenCore Install Guide](https://dortania.github.io/OpenCore-Post-Install/usb/system-preparation.html#checking-what-renames-you-need).
 	
 * **XHC1 to SHCI**: Needed for Skylake and older SMBIOS
 
@@ -116,25 +116,28 @@ USB controllers needs to be renamed in some SMBIOS. Refer to the Dortania's [Ope
 > [!IMPORTANT]  
 >  If you needed to rename your USB Controller, **apply** it then **restart**. This will give you less hassle following the next part of the guide. 
 
-3. Identify acpi-path of USB controller.
+> You must already know which port are active and their type, as I won't be covering it here.
 
+## Identifying ACPI-path
+#### Identify the ACPI-path of the USB controller
 ![](reference/hub_path.png)
 
 IOACPIPlane:/**_SB**/**PCI0**@0/**XHC**@14000000
 * XHC's acpi-path is `\_SB.PCI0.XHC`
-
-4. Now let's find the address `_ADR` of each active port.
+ 
+#### Identify the ACPI-path and `_ADR` of each port 
 
 ![](reference/port_adr.png)
 
 IOACPIPlane:/**_SB**//**PCI0**@0/**XHC**@14000000/**RHUB**@0/**HS01**@**1**
-* HS01's acpi-path is `\_SB.PCI0.XHC.RHUB.HS01` and it's `_ADR` (address) is at `1`. 
+* HS01's acpi-path is `\_SB.PCI0.XHC.RHUB.HS01`
+* HS01's `_ADR` is `1`. 
 * Convert decimal `1` to HEX, which is `01`.
-  	* `Name (_ADR, <b>0x01</b>)`
-	* e.g, If port is `@10`, it's hex is `0A`. Therefore, it will be `Name (_ADR, 0x0A)` in SSDT.
+  	* This is how it is going to be in the SSDT: `Name (_ADR, 0x01)`
+	* e.g, If port is `@10`, therefore it will be `Name (_ADR, 0x0A)`.
 * A port can be also an internal hub.
-	* The path of a port under an internal hub port that will be like:
-   		* IOACPIPlane:/**_SB**/**PCI0**@0/**EH01**@1D000000/**HUBN**@0/**PR01**@1/**PR11**@**1**
+
+     * e.g,  IOACPIPlane:/**_SB**/**PCI0**@0/**EH01**@1D000000/**HUBN**@0/**PR01**@1/**PR11**@**1**
  	* `\_SB.PCI0.EH01.HUBN.PR01.PR11` PR11 (e.g, it's a USB 2.0 port) belongs under PR01 (Hub Port)
   	* `PR11`s `_ADR` is `1`. `Name (_ADR, 0x01)`
 
