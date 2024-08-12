@@ -4,7 +4,7 @@
 > [!NOTE]  
 >  Disclaimer: I am not a developer, and my knowledge of ACPI is rather limited. 
 
-##### 🍎 There are much better, easier, and recommended utilities in mapping USB ports - such as USBMap by CorpNewt, or USBToolBox by DhinakG.
+##### 🍏 There are much better, easier, and recommended utilities in mapping USB ports - such as USBMap by CorpNewt, or USBToolBox by DhinakG.
 
 Advantage of this method compared to other known methods:
 * macOS independent!
@@ -46,7 +46,7 @@ In order to build our own USB port map via SSDT, we will do the following:
 1. Disable the `RHUB` for XHC_ Controller, and/or the `HUBN` for EHC_ Controller. This effectively disables the `_UPC` methods under each ports of each hubs. 
 2. Add `XHUB` as a replacement for RHUB, and/or `HUBX` for `HUBN`. 
 3. Add the `_ADR` (address) of `RHUB` or `HUBN` to the new hubs. Essentially, `XHUB` will take over the address of `RHUB`, and `HUBX` for `HUBN`.
-4. Enumerate active ports under the new hubs. Take the `_ADR` of each ports from their original hub, then add them under the new one.
+4. List the active ports under the new hubs. Take the `_ADR` of each ports, and then enumerate them under the new one.
 5. Adjust `_UPC` for each port.
 
 
@@ -258,3 +258,4 @@ Scope (\_SB.PCI0.EH01.HUBX.PR01) // Referencing the new HUBX's PR01 port
 * This guide lacks information regarding the 3rd Byte in the `_UPC` method for USB-C port (capabilities), please refer to the ACPI Specification for more information.
 * Information regarding `_UPC` method from 5T33Z0's ACPI USB Mapping guide, and the ACPI Specification.
 * I cannot_ guarantee that this method would work 100% for all devices.
+* Information might be too vague, this guide assumes you understand basic ACPI writing.
