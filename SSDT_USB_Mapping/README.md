@@ -239,7 +239,7 @@ DefinitionBlock ("", "SSDT", 2, "USBMAP", "USB_MAP", 0x00001000)
 
 ## Notes
 
-I lack understanding of the `_PLD` method, hence why it is not included in this guide. However, if you want it, you can return the original `_PLD` from your DSDT (which is probably borked anyway). It is apparently `Optional` according to the ACPI specification.
+I lack the understanding of the `_PLD` method, hence why it is not included in this guide. However, if you want it, you can return the original `_PLD` from your DSDT (which is probably borked anyway). It is apparently `Optional` according to the ACPI specification.
 
 ```asl
 External (_SB_.PCI0.EH01.HUBN.PR01._PLD, MethodObj) // Referencing the _PLD method of PR01 from DSDT. 
