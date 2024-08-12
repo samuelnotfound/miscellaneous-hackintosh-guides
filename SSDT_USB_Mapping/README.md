@@ -2,21 +2,21 @@
 # Mapping USB ports via ACPI without Replacement table
 
 > [!NOTE]  
->  Disclaimer: I am not a developer, and my knowledge of ACPI is limited. This might, or **MIGHT NOT** conform to ACPI specification. Do not consider this a guide. There are much better, easier, and recommended utilities in mapping USB ports - such as USBMap by CorpNewt, or USBToolBox by DhinakG.
+>  Disclaimer: I am not a developer, and my knowledge of ACPI is rather limited. 
 
+##### There are much better, easier, and recommended utilities in mapping USB ports - such as USBMap by CorpNewt, or USBToolBox by DhinakG.
 
-Advantage of this method:
+Advantage of this method compared to other known methods:
 * macOS independent!
 * No _UPC to XUPC rename! 🎉
 
 ### Overview
-Each port in the DSDT for Broadwell or older has a method called `_UPC`. This `_UPC` method carries a package consisting of four data. This package indicates whether the port is **active** and specifies its **type**. 
+Each USB port in DSDT found in Broadwell and earlier has a method called `_UPC`. This `_UPC` method has a package consisting of four bytes. This package indicates whether the port is **active** and specifies its **type**. 
 
-In my DSDT, the package is contained within `UPCP`. Yours might be named differently, but the structure typically resembles this format.
+In this sample, the package is contained within `UPCP`. Yours might be named differently, but the structure typically resembles this format.
 
-
-```asl
-Device (HS01) // The USB Port
+```asl{}
+Device (HS01) // The USB Port HS01
 {
     Name (_ADR, One)  // The address of HS01
     Name (_STA, 0x0F) 
@@ -27,18 +27,27 @@ Device (HS01) // The USB Port
         {
             0xFF, // Determines if a port is on or off | 0xFF = On /  Zero = Off
             0x03, // Determines the USB port type. 
-            Zero, // USB-C Port Capabilities. Must be Zero for other port type.
+            Zero, // USB-C Port Capabilities; Must be Zero for other port type.
             Zero  // Must be Zero
         })
     /*
         Yours might have additional `If` statements in this part.
     */
-        Return (UPCP) // Send the package from `UPCP` to `_UPC`
+        Return (UPCP) // Return the package from `UPCP` to `_UPC`
     }
 }
 ```
 
-More information regarding `_UPC` can be found [here](https://uefi.org/sites/default/files/resources/ACPI_Spec_6_5_Aug29.pdf), page 570. 
+Information regarding `_UPC` can be found in [ACPI Specification](https://uefi.org/sites/default/files/resources/ACPI_Spec_6_5_Aug29.pdf), around page 570. 
+
+## Approach
+In order to build our own USB port map via SSDT, we will do the following:
+
+1. Disable the `RHUB` for XHC_ Controller, and/or the `HUBN` for EHC_ Controller. This effectively disables the `_UPC` methods under each ports of each hubs. 
+2. Add `XHUB` as a replacement for RHUB, and/or `HUBX` for `HUBN`. 
+3. Add the `_ADR` (address) of `RHUB` or `HUBN` to the new hubs. Essentially, `XHUB` will take over the address of `RHUB`, and `HUBX` for `HUBN`.
+4. Enumerate active ports under the new hubs. Take the `_ADR` of each ports from their original hub, then add them under the new one.
+5. Adjust `_UPC` for each port.
 
 
 The following values for USB port types are possible:
@@ -58,10 +67,9 @@ The following values for USB port types are possible:
 |**`0x0A`**| USB Type `C` (w/o Switch) | 
 |**`0xFF`**| Internal (e.g, Bluetooth and Camera) |
 
-## -
-1. You must already know which port are active, and their type as I won't be covering it here.
-2. Rename USB Controller
-	* USB controllers needs to be renamed in some SMBIOS. Refer to the Dortania's [OpenCore Install Guide](https://dortania.github.io/OpenCore-Post-Install/usb/system-preparation.html#checking-what-renames-you-need)
+## Renaming USB Controller
+
+USB controllers needs to be renamed in some SMBIOS. Refer to the Dortania's [OpenCore Install Guide](https://dortania.github.io/OpenCore-Post-Install/usb/system-preparation.html#checking-what-renames-you-need).
 	
 * **XHC1 to SHCI**: Needed for Skylake and older SMBIOS
 
@@ -105,6 +113,8 @@ The following values for USB port types are possible:
 | TableLength | Number | 0 |
 | TableSignature | Data |  |
 
+> [!IMPORTANT]  
+>  If you needed to rename your USB Controller, **apply** it then **restart**. This will give you less hassle following the next part of the guide. 
 
 3. Identify acpi-path of USB controller.
 
@@ -118,27 +128,17 @@ IOACPIPlane:/**_SB**/**PCI0**@0/**XHC**@14000000
 ![](reference/port_adr.png)
 
 IOACPIPlane:/**_SB**//**PCI0**@0/**XHC**@14000000/**RHUB**@0/**HS01**@**1**
-* HS01's acpi-path is `\_SB.PCI0.XHC.RHUB.HS01` and it's `_ADR`ess is at `1`. 
-* Convert decimal `1` to HEX which is `01`.
-  	* This is how we are going to use it later on for reference: `Name (_ADR, 0x01)`
-	* e.g, if port is `@10`, it's hex is `0A`. `Name (_ADR, 0x0A)`
+* HS01's acpi-path is `\_SB.PCI0.XHC.RHUB.HS01` and it's `_ADR` (address) is at `1`. 
+* Convert decimal `1` to HEX, which is `01`.
+  	* `Name (_ADR, <b>0x01</b>)`
+	* e.g, If port is `@10`, it's hex is `0A`. Therefore, it will be `Name (_ADR, 0x0A)` in SSDT.
 * A port can be also an internal hub.
-	* The path of a port under an (internal hub) port that will be like:
+	* The path of a port under an internal hub port that will be like:
    		* IOACPIPlane:/**_SB**/**PCI0**@0/**EH01**@1D000000/**HUBN**@0/**PR01**@1/**PR11**@**1**
- 	* `\_SB.PCI0.EH01.HUBN.PR01.PR11` PR11 belongs under PR01
+ 	* `\_SB.PCI0.EH01.HUBN.PR01.PR11` PR11 (e.g, it's a USB 2.0 port) belongs under PR01 (Hub Port)
   	* `PR11`s `_ADR` is `1`. `Name (_ADR, 0x01)`
 
 Now do that for each ports.
-
-
-## Approach
-In order to build our own USB port map via SSDT, we will do the following:
-
-1. Disable the `RHUB` of XHC_ Controller, or the `HUBN` of EHC_ Controller. This effectively disables the `_UPC` methods under each ports of each hubs. 
-2. Re-introduce them with a new name such as `XHUB` as a replacement for RHUB, or `HUBX` for `HUBN`. We'll now have a nullified hub that we could customize.
-3. Add the `_ADR` of `RHUB` or `HUBN` to the new hub. Essentially, `XHUB` and `HUBX` will take over the addresses of `RHUB` and `HUBN`.
-4. Declare ports under these new hubs, and add the `_ADR`ess of each ports we acquired from each port. 
-5. Adjust `_UPC` for each port.
 
 Download the [`SSDT-USBMAP.dsl`](SSDT_USB_Mapping/SSDT_USBMAP.dsl) and adjust it accordingly.
 
@@ -202,7 +202,7 @@ DefinitionBlock ("", "SSDT", 2, "USBMAP", "USB_MAP", 0x00001000)
             {
                 0xFF, // PR01's active
                 0xFF, // It's Internal
-                Zero, // If you have Type C port, just refer the info from your system DSDT/SSDT (for now).
+                Zero,
                 Zero
             })
         }
@@ -234,7 +234,9 @@ DefinitionBlock ("", "SSDT", 2, "USBMAP", "USB_MAP", 0x00001000)
 
 ```
 
-**`Optional`**: if you want`_PLD`, just return the original value from your DSDT for now.
+## Notes
+
+I lack understanding of the `_PLD` method, hence why it is not included in this guide. However, if you want it, you can return the original `_PLD` from your DSDT (which is probably borked anyway). It is apparently `Optional` according to the ACPI specification.
 
 ```asl
 External (_SB_.PCI0.EH01.HUBN.PR01._PLD, MethodObj) // Referencing the _PLD method of PR01 from DSDT. 
@@ -248,8 +250,8 @@ Scope (\_SB.PCI0.EH01.HUBX.PR01) // Referencing the new HUBX's PR01 port
 }
 ```
 
-## Notes
-* There are`_PLD` methods under each ports in my DSDT. I didn't include them because they're probably borked anyway. It's apparently `Optional` according to the ACPI spec.
-* This idea of `_STA`ing, and re-assigning `_ADR` was based on SSDT-USB-Reset generated by USBMap. Information regarding `_UPC` method are from 5T33Z0's ACPI USB Mapping guide, and the ACPI Spec.
-* I feel like it's just safe to `_STA` the RHUB/HUBN as there's SSDTs such as SSDT-RHUB. 
-* I cannot guarantee that this method would work for all.
+* `_PLD` does exist in real macs ACPI, but I am not sure if macOS actually uses it.
+* The idea of `_STA`ing, and re-assigning `_ADR` was inspired by SSDT-USB-Reset generated by USBMap, and  SSDT-RHUB.
+* This guide lacks information regarding the 3rd Byte in the `_UPC` method for USB-C port (capabilities), please refer to the ACPI Specification for more information.
+* Information regarding `_UPC` method from 5T33Z0's ACPI USB Mapping guide, and the ACPI Specification.
+* I cannot_ guarantee that this method would work 100% for all devices.
