@@ -69,7 +69,7 @@ The following values for USB port types are possible:
 
 ## Renaming USB Controller
 
-Certian USB controllers needs to be renamed for some SMBIOS. Refer to the Dortania's [OpenCore Install Guide](https://dortania.github.io/OpenCore-Post-Install/usb/system-preparation.html#checking-what-renames-you-need).
+Certain USB controllers needs to be renamed for some SMBIOS. Refer to the Dortania's [OpenCore Install Guide](https://dortania.github.io/OpenCore-Post-Install/usb/system-preparation.html#checking-what-renames-you-need).
 	
 * **XHC1 to SHCI**: Needed for Skylake and older SMBIOS
 
