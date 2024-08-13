@@ -258,6 +258,6 @@ Scope (\_SB.PCI0.EH01.HUBX.PR01) // Referencing the new HUBX's PR01 port
 * This guide lacks information regarding the 3rd Byte in the `_UPC` method for USB-C port (capabilities), please refer to the ACPI Specification for more information.
 * Information regarding `_UPC` method are from 5T33Z0's ACPI USB Mapping guide, and the ACPI Specification.
 * I cannot_ guarantee that this method would work 100% for all devices.
-* If USBToolBox.kext (with UTBMap.kext), or USBMap.kext are present/turned on in your config, this SSDT will be ignored by macOS.
+* If USBToolBox.kext (with UTBMap.kext), or USBMap.kext are present/turned on in your config, this USB mapping will be ignored by macOS.
 * This SSDT is **not necessary**, but useful if you want to share your config and prefer having USBMap.kext. USBMap.kext is SMBIOS dependent, if someone tries your config and changes the SMBIOS, this SSDT will be the fallback USB Map.
 * Information might be too vague, this guide assumes you understand basic ACPI writing.
