@@ -126,15 +126,15 @@ IOACPIPlane:/`_SB`/`PCI0`@0/`XHC`@14000000
 * XHC's acpi-path is `\_SB.PCI0.XHC`
  
 #### 2. Identify the ACPI-path and `_ADR` of each port 
-
+###### 🚧 
 ![](reference/port_adr.png)
 
 **HS01** : IOACPIPlane:/`_SB`/`PCI0`@0/`XHC`@14000000/`RHUB`@0/`HS01`@`1`
 * HS01's acpi-path is `\_SB.PCI0.XHC.RHUB.HS01`
-* HS01's `_ADR` is `1`. 
-* Convert decimal `1` to HEX, which is `01`.
+* HS01's `_ADR` is `1`
+* Convert decimal `1` to HEX, which is `01`
   	* This is how it is going to be in the SSDT: `Name (_ADR, 0x01)`
-	* If port is `@10`, therefore it will be `Name (_ADR, 0x0A)`.
+	* If port is `@10`, therefore it will be `Name (_ADR, 0x0A)`
 > [!NOTE]  
 >  Some ports can be an internal hub and will have ports under it. Consider that internal hub port as a separate port from it's child. The internal hub port is a port of its own, and the child port themselves. For instance `PR01` is an (internal) hub port,  and it has a child port `PR11` (USB 2.0), then you have to enumerate them separately.
 
@@ -154,51 +154,50 @@ DefinitionBlock ("", "SSDT", 2, "USBMAP", "USB_MAP", 0x00001000)
     External (_SB_.PCI0.XHC_.RHUB, DeviceObj)
 
     
-    Scope (\_SB.PCI0.EH01.HUBN)  // `Scope`, referencing to the HUBN of EH01 in DSDT. It's RHUB for XHC/SHCI
+    Scope (\_SB.PCI0.EH01.HUBN)  // Referencing to the HUBN of EH01 in DSDT. It's RHUB for XHC/SHCI
     {
         Method (_STA, 0, NotSerialized)  
         {
-            If (_OSI ("Darwin"))
+            If (_OSI ("Darwin")) // if macOS
             {
-                Return (Zero) // Disable original RHUB/HUBN if macOS
+                Return (Zero) // Disable HUBN
             }
             Else
             {
-                Return (0x0F) // Enable if other OS
+                Return (0x0F) // Enable if not macOS
             }
         }
     }
     
 	/*
-		Duplicate and adjust the above if you have both EHC (EH01/EH02) or XHC (SHCI).
+		Duplicate the above and adjust if you also have XHC/SHCI, you need to disable RHUB.
 	*/
 
-
-    Device (\_SB.PCI0.EH01.HUBX) // We add a new `HUBX` `Device`, since HUBN is status is disabled.
+    Device (\_SB.PCI0.EH01.HUBX) // Add a new `HUBX` `Device`, since HUBN is disabled.
     {
-        Name (_ADR, Zero)  // Re-adding the _ADR of the HUBN. RHUB or HUBN always have it `Zero`.
+        Name (_ADR, Zero)  // Giving the address of the HUBN to the HUBX. RHUB or HUBN always have it `Zero`.
         Method (_STA, 0, NotSerialized)  
         {
-            If (_OSI ("Darwin"))
+            If (_OSI ("Darwin")) // if macOS
             {
-                Return (0x0F) // Only enable if macOS
+                Return (0x0F) // Enable HUBX
             }
             Else
             {
-                Return (Zero) // Disabled for other OS
+                Return (Zero) // Disable HUBX for other OS
             }
         }
     }
 
 	/*
-		Duplicate and adjust the above if you have both EHC `HUBN` or XHC `RHUB`.
+                Duplicate the above and adjust if you also have XHC/SHC. Add a new device named `XHUB` as a replacement for the disabled RHUB.
 	*/
     
 
     Device (\_SB.PCI0.EH01.HUBX.PR01) // Under HUBX, we add the Port such as PR01
     {
         Name (_ADR, One)  // Each port has unique _ADR, here is where we add the converted HEX we looked for earlier.
-        Method (_UPC, 0, Serialized)  // _UPC: USB Port Capabilities
+        Method (_UPC, 0, Serialized)  
         {
             Return (Package (0x04)
             {
@@ -215,7 +214,7 @@ DefinitionBlock ("", "SSDT", 2, "USBMAP", "USB_MAP", 0x00001000)
    	 */
     
 
-    Device (\_SB.PCI0.EH01.HUBX.PR01.PR11) // It happens that some ports are also a HUB. In this case, PR01 is. So under PR01, we add a PR11
+    Device (\_SB.PCI0.EH01.HUBX.PR01.PR11) // Some ports may also be a HUB. In this case, PR01 is. Under PR01, there is PR11
     {
         Name (_ADR, One) // _ADR of PR11
         Method (_UPC, 0, Serialized)       
