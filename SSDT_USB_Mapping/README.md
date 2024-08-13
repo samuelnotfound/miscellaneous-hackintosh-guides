@@ -231,9 +231,13 @@ DefinitionBlock ("", "SSDT", 2, "USBMAP", "USB_MAP", 0x00001000)
     }
         /*
 		Append if there are another port under this HUB port.
-        */}
+        */
+}
 
 ```
+Basically, e.g, **\_SB.PCI0.EH01.`HUBN`.PR01.PR11** turns **\_SB.PCI0.EH01.`HUBX`.PR01.PR11**.
+
+
 
 ## Notes
 
