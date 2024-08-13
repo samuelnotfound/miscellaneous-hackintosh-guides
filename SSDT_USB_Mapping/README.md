@@ -136,12 +136,7 @@ IOACPIPlane:/`_SB`/`PCI0`@0/`XHC`@14000000
   	* This is how it is going to be in the SSDT: `Name (_ADR, 0x01)`
 	* If port is `@10`, therefore it will be `Name (_ADR, 0x0A)`.
 > [!NOTE]  
->  Some ports can be an internal hub and will have ports under it. Consider that internal hub port as a separate port from it's child. The internal hub port is a port of its own, and the child themselves.
-
-* The path of a port under an internal hub port that will be like:
-  *  IOACPIPlane:/**_SB**/**PCI0**@0/**EH01**@1D000000/**HUBN**@0/**PR01**@1/**PR11**@**1**
-     * `\_SB.PCI0.EH01.HUBN.PR01.PR11` PR11 (e.g, it's a USB 2.0 port) belongs under PR01 (Hub Port)
-     * `PR11`s `_ADR` is `1`. `Name (_ADR, 0x01)`
+>  Some ports can be an internal hub and will have ports under it. Consider that internal hub port as a separate port from it's child. The internal hub port is a port of its own, and the child themselves. 
 
 Now do that for each ports.
 
