@@ -62,7 +62,8 @@ In order to build our own USB port map via SSDT, we will do the following:
 1. Disable the `RHUB` for XHC_ Controller, and/or the `HUBN` for EHC_ Controller. This effectively disables the `_UPC` methods under each ports of each hubs. 
 2. Add `XHUB` as a replacement for RHUB, and/or `HUBX` for `HUBN`. 
 3. Add the `_ADR` (address) of `RHUB` or `HUBN` to the new hubs. Essentially, `XHUB` will take over the address of `RHUB`, and `HUBX` for `HUBN`.
-4. Take the `_ADR` of each active port, and enumerate them under the new hub.
+4. Take the `_ADR` of each active port
+5. Enumerate active ports under the new hub, and add their `_ADR`.
 6. Adjust `_UPC` for each port.
 
 > You must already know which port are active and their type, as I won't be covering it here.
