@@ -115,7 +115,8 @@ Certain USB controllers needs to be renamed. Refer to the Dortania's [OpenCore I
 | TableSignature | Data |  |
 
 > [!IMPORTANT]  
->  If you needed to rename your USB Controller, **apply** it then **restart** before proceeding to the next part. OpenCore applies the renaming in your ACPI before loading the custom SSDT. If you follow the rest of the guide as is, but do the renaming later on, you might bork your ACPI because of incorrect references for `External` and `Scope`.
+>  If you need to rename your USB Controller, **apply** it first **restart** before proceeding to the next part of this guide. OpenCore applies the renaming to your ACPI before it loads the custom SSDT. If you follow the rest of the guide but do the renaming later on, you might run into a problem with ACPI due to incorrect references for `External` and `Scope`.
+
 
 ## Identifying ACPI-path
 #### 1. Identify the ACPI-path of the USB controller
@@ -133,7 +134,7 @@ IOACPIPlane:/`_SB`/`PCI0`@0/`XHC`@14000000
 * Convert decimal `1` to HEX, which is `01`
   	* This is how it is going to be in the SSDT: `Name (_ADR, 0x01)`
 > [!NOTE]  
->  Some ports can be an internal hub and will have ports under it. Consider that internal hub port as a separate port from it's child. The internal hub port is a port of its own, and the child port themselves. For instance `PR01` is an (internal) hub port,  and it has a child port `PR11` (USB 2.0), then you have to enumerate them separately.
+> Some ports may function as internal hubs and will have ports under them. Treat each internal hub port distinct from its child ports. For instance, if PR01 is an (internal) hub port with a child port PR11 (USB 2.0), you should list PR01 and PR11 as separate ports.
 
 Now do that for each ports.
 
