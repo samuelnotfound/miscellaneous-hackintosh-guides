@@ -1,20 +1,20 @@
 
 # Mapping USB ports via ACPI without Replacement table
-There are much easier, and recommended methods in mapping USB ports — such as USBMap by CorpNewt, or USBToolBox by DhinakG. This is `optional`.
-
-> [!NOTE]  
->  Disclaimer: I am not a developer, and my knowledge of ACPI is rather limited.
 
 Advantage of this method compared to other known methods:
 * macOS independent!
 * No _UPC to XUPC rename! 🎉
 
+> [!NOTE]  
+>  Disclaimer: This guide is not written by a developer, proceed at your own risk. It is still recommended to map USB using tools such as [USBMap](https://github.com/corpnewt/USBMap), or [USBToolBox](https://github.com/USBToolBox/tool). 
+
 ### Overview
 Each USB port in DSDT found in Broadwell and earlier has a method called `_UPC`. This `_UPC` method has a package consisting of four bytes. This package indicates whether the port is **active** and specifies its **type**. 
 
-In this sample, the package is contained within `UPCP`. Yours might be named differently, but the structure typically resembles this format.
-
 ```asl
+// In this example, the package is contained within `UPCP`.
+// Yours might be named differently, but the structure typically resembles this format.
+
 Device (HS01) // The USB Port HS01
 {
     Name (_ADR, One)  // The address of HS01
@@ -56,6 +56,7 @@ The following values for USB port types are possible:
 Information regarding `_UPC` can be found in [ACPI Specification](https://uefi.org/sites/default/files/resources/ACPI_Spec_6_5_Aug29.pdf), ≈ p. 570. 
 
 ## Approach
+
 In order to build our own USB port map via SSDT, we will do the following:
 
 1. Disable the `RHUB` for XHC_ Controller, and/or the `HUBN` for EHC_ Controller. This effectively disables the `_UPC` methods under each ports of each hubs. 
@@ -65,7 +66,7 @@ In order to build our own USB port map via SSDT, we will do the following:
 5. Enumerate active ports under the new hub, and add their `_ADR`.
 6. Adjust `_UPC` for each port.
 
-> You must already know which port are active and their type, as I won't be covering it here.
+##### You must already know which port are active and their type, as I won't be covering it here.
 
 ## Renaming USB Controller
 
@@ -114,27 +115,23 @@ Certain USB controllers needs to be renamed. Refer to the Dortania's [OpenCore I
 | TableSignature | Data |  |
 
 > [!IMPORTANT]  
->  If you needed to rename your USB Controller, **apply** it then **restart** before proceeding to the next part.
-
-OpenCore applies the renaming in your ACPI before loading the custom SSDT. If you follow the rest of the guide, but do the renaming later on, you might bork your ACPI because of incorrect references for `External` and `Scope`.
+>  If you needed to rename your USB Controller, **apply** it then **restart** before proceeding to the next part. OpenCore applies the renaming in your ACPI before loading the custom SSDT. If you follow the rest of the guide as is, but do the renaming later on, you might bork your ACPI because of incorrect references for `External` and `Scope`.
 
 ## Identifying ACPI-path
 #### 1. Identify the ACPI-path of the USB controller
-![](reference/hub_path.png)
+<img align="center" src="./reference/hub_path.png" alt="hub_path" width="400">
 
 IOACPIPlane:/`_SB`/`PCI0`@0/`XHC`@14000000
 * XHC's acpi-path is `\_SB.PCI0.XHC`
  
 #### 2. Identify the ACPI-path and `_ADR` of each port 
-###### 🚧 
-![](reference/port_adr.png)
+<img align="center" src="./reference/port_adr.png" alt="port_adr" width="400">
 
 **HS01** : IOACPIPlane:/`_SB`/`PCI0`@0/`XHC`@14000000/`RHUB`@0/`HS01`@`1`
 * HS01's acpi-path is `\_SB.PCI0.XHC.RHUB.HS01`
 * HS01's `_ADR` is `1`
 * Convert decimal `1` to HEX, which is `01`
   	* This is how it is going to be in the SSDT: `Name (_ADR, 0x01)`
-	* If port is `@10`, therefore it will be `Name (_ADR, 0x0A)`
 > [!NOTE]  
 >  Some ports can be an internal hub and will have ports under it. Consider that internal hub port as a separate port from it's child. The internal hub port is a port of its own, and the child port themselves. For instance `PR01` is an (internal) hub port,  and it has a child port `PR11` (USB 2.0), then you have to enumerate them separately.
 
@@ -190,7 +187,7 @@ DefinitionBlock ("", "SSDT", 2, "USBMAP", "USB_MAP", 0x00001000)
     }
 
 	/*
-                Duplicate the above and adjust if you also have XHC/SHC. Add a new device named `XHUB` as a replacement for the disabled RHUB.
+                Duplicate the above and adjust if you also have XHC/SHCI. Add a new device named `XHUB` as a replacement for the disabled RHUB.
 	*/
     
 
@@ -235,13 +232,10 @@ DefinitionBlock ("", "SSDT", 2, "USBMAP", "USB_MAP", 0x00001000)
 }
 
 ```
-Basically, e.g, **\_SB.PCI0.EH01.`HUBN`.PR01.PR11** turns **\_SB.PCI0.EH01.`HUBX`.PR01.PR11**.
-
-
 
 ## Notes
 
-I lack the understanding of the `_PLD` method, hence why it is not included in this guide. However, if you want it, you can return the original `_PLD` from your DSDT (which is probably borked anyway). It is apparently `Optional` according to the ACPI specification.
+* I lack the understanding of the `_PLD` method, hence why it is not included in this guide. However, if you want it, you can return the original `_PLD` from your DSDT (which is probably borked anyway). It is apparently `Optional` according to the ACPI specification.
 
 ```asl
 External (_SB_.PCI0.EH01.HUBN.PR01._PLD, MethodObj) // Referencing the _PLD method of PR01 from DSDT. 
@@ -263,4 +257,4 @@ Scope (\_SB.PCI0.EH01.HUBX.PR01) // Referencing the new HUBX's PR01 port
 * If USBToolBox.kext (with UTBMap.kext), or USBMap.kext are present/turned on in your config, this USB mapping will be ignored by macOS.
 * This SSDT is **not necessary**, but useful if you want to share your config and prefer having USBMap.kext. USBMap.kext is SMBIOS dependent, if someone tries your config and changes the SMBIOS, this SSDT will be the fallback USB Map.
 * Information might be too vague, this guide assumes you understand basic ACPI writing.
-* Feel free to pull a PR to reword this readme file, it is still quite hard to understand.
+* Feel free to pull a PR to reword this README file, it is still quite hard to understand.
