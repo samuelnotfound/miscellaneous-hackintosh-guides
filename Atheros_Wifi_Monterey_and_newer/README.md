@@ -136,6 +136,9 @@ You can now see the `IOName` is properly injected/spoofed. OCLP will now recogni
 
 Open the OCLP app, then apply root patches.
 
+# Bluetooth (Monterey+)
+Use tp-link UB400, and add `Bluetoolfixup.kext`.
+
 # Other Important Notes: 
 - Remove `amfi=0x80` in your boot-args after applying root patched with OCLP, `AMFIPass.kext` will allow systems with patched root volume to boot without this boot arg.
 - Once your root volume has been patched, SIP must remain at least partially disabled, or you will not be able to properly boot your system.
