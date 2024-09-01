@@ -6,7 +6,7 @@ Advantage of this method compared to other known methods:
 * No _UPC to XUPC rename! 🎉
 
 > [!NOTE]  
->  Disclaimer: This guide is not written by a developer, proceed at your own risk. It is still recommended to map USB using tools such as [USBMap](https://github.com/corpnewt/USBMap), or [USBToolBox](https://github.com/USBToolBox/tool). 
+>  ⚠️ Disclaimer: This guide is not written by a developer, proceed at your own risk. It is still recommended to map USB using tools such as [USBMap](https://github.com/corpnewt/USBMap), or [USBToolBox](https://github.com/USBToolBox/tool). 
 
 ### Overview
 Each USB port in DSDT found in Broadwell and earlier has a method called `_UPC`. This `_UPC` method has a package consisting of four bytes. This package indicates whether the port is **active** and specifies its **type**. 
@@ -58,13 +58,11 @@ Information regarding `_UPC` can be found in [ACPI Specification](https://uefi.o
 ## Approach
 
 In order to build our own USB port map via SSDT, we will do the following:
-
-1. Disable the `RHUB` for XHC_ Controller, and/or the `HUBN` for EHC_ Controller. This effectively disables the `_UPC` methods under each ports of each hubs. 
-2. Add `XHUB` as a replacement for RHUB, and/or `HUBX` for `HUBN`. 
-3. Add the `_ADR` (address) of `RHUB` or `HUBN` to the new hubs. Essentially, `XHUB` will take over the address of `RHUB`, and `HUBX` for `HUBN`.
-4. Take the `_ADR` of each active port
-5. Enumerate active ports under the new hub, and add their `_ADR`.
-6. Adjust `_UPC` for each port.
+1. **Disable the `RHUB` (XHC Controller' Hub) and/or `HUBN` (EHC Controller's Hub):** This disables the `_UPC` methods under each port of the hub.
+2. **Add `XHUB` and/or `HUBX` as Replacements:** Replace `RHUB` with `XHUB` and `HUBN` with `HUBX`.
+3. **Assign the `_ADR` of the Original Hubs:** `XHUB` takes over the address of `RHUB`, and `HUBX` for `HUBN`.
+4. **Assign `_ADR` for Each Active Port:** Identify and list the `_ADR` of each active port.
+5. **Enumerate Active Ports:** Add the active ports under the new hub and adjust their `_UPC`.
 
 ##### You must already know which port are active and their type, as I won't be covering it here.
 
@@ -72,7 +70,7 @@ In order to build our own USB port map via SSDT, we will do the following:
 
 Certain USB controllers needs to be renamed. Refer to the Dortania's [OpenCore Install Guide](https://dortania.github.io/OpenCore-Post-Install/usb/system-preparation.html#checking-what-renames-you-need).
 	
-* **XHC1 to SHCI**: Present in Skylake and older SMBIOS
+* **XHC1 to SHCI**: Present in Skylake and older's DSDT/SSDT
 
 | Key | Type | Value |
 | :--- | :--- | :--- |
@@ -86,7 +84,7 @@ Certain USB controllers needs to be renamed. Refer to the Dortania's [OpenCore I
 | TableLength | Number | 0 |
 | TableSignature | Data |  |
 
-* **EHC1 to EH01**: Present in Broadwell and older SMBIOS
+* **EHC1 to EH01**: Present in Broadwell and older's DSDT
 
 | Key | Type | Value |
 | :--- | :--- | :--- |
@@ -100,7 +98,7 @@ Certain USB controllers needs to be renamed. Refer to the Dortania's [OpenCore I
 | TableLength | Number | 0 |
 | TableSignature | Data |  |
 
-* **EHC2 to EH02**: Present in Broadwell and older SMBIOS
+* **EHC2 to EH02**: Present in Broadwell and older's DSDT
 
 | Key | Type | Value |
 | :--- | :--- | :--- |
