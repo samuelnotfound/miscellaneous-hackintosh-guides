@@ -27,7 +27,7 @@ Monterey through Sequoia are supported.
 * `IOName` is spoofed to one of Wi-Fi cards used in real Macs. This way, OpenCore Patcher detects a supported card and enables the option for applying root patches **"Legacy Wireless"**.
 * `compatible` and `device-id` is spoofed "...due to AirPortAtheros40 having internal PCI ID checks meaning simply expanding the device-id list won't work." - [Khronokernel](https://github.com/khronokernel/IO80211-Patches?tab=readme-ov-file#unsupported-atheros-chipsets)
 
-Atheros cards supported by the kext:
+device-ids supported by the kext:
 ||`IOName` and `compatible`|`device-id`|Note|
 |-|-|-|-|
 |AR93xx Wireless Network Adapter| pci168c,30 | 30000000 | Used in iMac12,x |
