@@ -1,5 +1,5 @@
-# Restoring Atheros WiFi Functionality on macOS Monterey, Ventura, and Sonoma
-##### This is not tested with Seqouia.
+# Restore Atheros WiFi on macOS 12+
+Monterey through Sequoia are supported.
 
 > [!Note]
 > OpenCore Legacy Patcher does not officially support being run on non-Apple Hardware.
@@ -50,7 +50,7 @@ Example:
   
 * AR9485 with an IOName `pci168c,32`, can set its `IOName` and `compatible` to `pci168c,30`, and its `device-id` to `30000000`.
 
-You can actually choose **any** from the list,  just choose the closest one.
+You can actually just choose **any** from the list.
 
 ### 3. Misc 
 
