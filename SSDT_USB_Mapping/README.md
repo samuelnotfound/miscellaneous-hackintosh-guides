@@ -1,5 +1,7 @@
 
 # Mapping USB ports via ACPI without Replacement table
+⚠️ This guide is still work in progress. It should still work but it might get confusing.
+
 
 Advantage of this method compared to other known methods:
 * macOS independent!
@@ -9,7 +11,7 @@ Advantage of this method compared to other known methods:
 >  ⚠️ Disclaimer: This guide is not written by a developer, proceed at your own risk. It is still recommended to map USB using tools such as [USBMap](https://github.com/corpnewt/USBMap), or [USBToolBox](https://github.com/USBToolBox/tool). 
 
 ### Overview
-Each USB port in DSDT found in Broadwell and earlier has a method called `_UPC`. This `_UPC` method has a package consisting of four bytes. This package indicates whether the port is **active** and specifies its **type**. 
+Each USB port in DSDT (or SSDT) has a method called `_UPC`. This method has a package consisting of four bytes. This package indicates whether the port is **active** and specifies its **type**. 
 
 ```asl
 // In this example, the package is contained within `UPCP`.
@@ -58,19 +60,20 @@ Information regarding `_UPC` can be found in [ACPI Specification](https://uefi.o
 ## Approach
 
 In order to build our own USB port map via SSDT, we will do the following:
-1. **Disable the `RHUB` (XHC Controller' Hub) and/or `HUBN` (EHC Controller's Hub):** This disables the `_UPC` methods under each port of the hub.
-2. **Add `XHUB` and/or `HUBX` as Replacements:** Replace `RHUB` with `XHUB` and `HUBN` with `HUBX`.
-3. **Assign the `_ADR` of the Original Hubs:** `XHUB` takes over the address of `RHUB`, and `HUBX` for `HUBN`.
-4. **Assign `_ADR` for Each Active Port:** Identify and list the `_ADR` of each active port.
-5. **Enumerate Active Ports:** Add the active ports under the new hub and adjust their `_UPC`.
 
-##### You must already know which port are active and their type, as I won't be covering it here.
+1. **Rename USB Controller** if needed.
+2. **Identify the `_ADR` of each active port**.
+3. **Disable the `RHUB` (XHC Controller' Hub) and/or `HUBN` (EHC Controller's Hub):** This disables the `_UPC` methods under each port of the hub.
+4. **Add `XHUB` and/or `HUBX` as Replacements:** Replace `RHUB` with `XHUB` and `HUBN` with `HUBX`.
+5. **Assign the `_ADR` of the Original Hubs:** `XHUB` takes over the address of `RHUB`, and `HUBX` for `HUBN`.
+6. **Enumerate and assign `_ADR` for Each Active Port:** Identify and list the `_ADR` of each active port taken from the original `RHUB` and/or `XHUB`.
+7. **Adjust `_UPC` of Active Ports**
 
 ## Renaming USB Controller
 
 Certain USB controllers needs to be renamed. Refer to the Dortania's [OpenCore Install Guide](https://dortania.github.io/OpenCore-Post-Install/usb/system-preparation.html#checking-what-renames-you-need).
 	
-* **XHC1 to SHCI**: Present in Skylake and older's DSDT/SSDT
+* **XHC1 to SHCI**
 
 | Key | Type | Value |
 | :--- | :--- | :--- |
@@ -84,7 +87,7 @@ Certain USB controllers needs to be renamed. Refer to the Dortania's [OpenCore I
 | TableLength | Number | 0 |
 | TableSignature | Data |  |
 
-* **EHC1 to EH01**: Present in Broadwell and older's DSDT
+* **EHC1 to EH01**
 
 | Key | Type | Value |
 | :--- | :--- | :--- |
@@ -98,7 +101,7 @@ Certain USB controllers needs to be renamed. Refer to the Dortania's [OpenCore I
 | TableLength | Number | 0 |
 | TableSignature | Data |  |
 
-* **EHC2 to EH02**: Present in Broadwell and older's DSDT
+* **EHC2 to EH02**
 
 | Key | Type | Value |
 | :--- | :--- | :--- |
@@ -112,9 +115,12 @@ Certain USB controllers needs to be renamed. Refer to the Dortania's [OpenCore I
 | TableLength | Number | 0 |
 | TableSignature | Data |  |
 
-> [!IMPORTANT]  
->  If you need to rename your USB Controller, **apply** it first **restart** before proceeding to the next part of this guide. OpenCore applies the renaming to your ACPI before it loads the custom SSDT. If you follow the rest of the guide but do the renaming later on, you might run into a problem with ACPI due to incorrect references for `External` and `Scope`.
+# Prerequisite
+1. Must already know the active ports 
+2. Rename USB Controller
 
+> [!IMPORTANT]  
+>  If your USB controller's name needs a rename, **apply** it, then **restart** before proceeding to next part. OpenCore applies the renaming in your ACPI before it loads the custom SSDT. If you follow the rest of the guide, but do the renaming later on, you might run into a problem with ACPI due to incorrect references for `External` and `Scope`.
 
 ## Identifying ACPI-path
 #### 1. Identify the ACPI-path of the USB controller
@@ -122,6 +128,7 @@ Certain USB controllers needs to be renamed. Refer to the Dortania's [OpenCore I
 
 IOACPIPlane:/`_SB`/`PCI0`@0/`XHC`@14000000
 * XHC's acpi-path is `\_SB.PCI0.XHC`
+  * This is going to be used for `Scope` and `External`. `RHUB` belongs under `XHC`, so it will be `\_SB.PCI0.XHC.RHUB` for later use. `HUBN` belongs under `EHxx`/.
  
 #### 2. Identify the ACPI-path and `_ADR` of each port 
 <img align="center" src="./reference/port_adr.png" alt="port_adr" width="400">
