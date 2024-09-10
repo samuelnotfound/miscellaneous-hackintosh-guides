@@ -2,15 +2,15 @@
 Grab [**CatalinaBCM5701Ethernet.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Ethernet) provided by OCLP.
 
 #### How to use: 
-1. Either add your device-id in the kext's Info.plist, **or** add these device properties:
+1. Add these device properties:
 
 |Key* | Value |Type |
 |-|-|-|
-| device-id | B4160000 | Data |
+| IOName | B4160000 | Data |
 | compatible | pci14e4,16b4 | String |
 
-2. Add the kext to your OC/Kexts folder, and make sure it is reflected in your config.plist.
-3. Set MinKernel to **20.0.0**. <br>
+2. Add CatalinaBCM5701Ethernet OC/Kexts folder, and must reflect in config.plist.
+4. Set MinKernel to **20.0.0**. <br>
 
 <br>
 
