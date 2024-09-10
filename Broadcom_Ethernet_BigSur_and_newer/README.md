@@ -6,7 +6,7 @@ Grab [**CatalinaBCM5701Ethernet.kext**](https://github.com/dortania/OpenCore-Leg
 
 |Key* | Value |Type |
 |-|-|-|
-| IOName | B4160000 | Data |
+| device-id | B4160000 | Data |
 | compatible | pci14e4,16b4 | String |
 
 2. Add CatalinaBCM5701Ethernet OC/Kexts folder, and must reflect in config.plist.
