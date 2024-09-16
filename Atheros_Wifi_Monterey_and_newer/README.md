@@ -1,33 +1,52 @@
-# Restore Atheros WiFi on macOS 12+
-Monterey through Sequoia are supported.
+# Restore Wi-Fi for Atheros on macOS 12.x-15.x
+Supported chipsets that had support dropped in Mojave, these include:
 
-> [!Note]
->  Airport features do not work. Only few Atheros models can can be used for WiFi functionality.
+- AR242x
+- AR542x
+- AR5416
+- AR5418
+- AR9280 - AR5BHB92
+- AR9285 - AR5B95
+- AR9287 - AR5B97
+- AR9380 - AR5BXB112
+<br>
 
-### 1. Kext
+Supported but requires additional patches:
 
+- AR946x (AR9462 & AR9463)
+- AR9485
+- AR9565
+
+#### Download:
+
+- [**AMFIPass.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Acidanthera)
+  -  **MinKernel**: `20.0.0`
 * [**corecaptureElCap.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Wifi)
+  -  **MinKernel**: `18.0.0`
 * [**IO80211ElCap.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Wifi)
-  * This has kexts within its Plugins folder, only keep **AirportAtheros40.kext**.
+  * Only keep **AirportAtheros40.kext** in its Plugins folder
+  * **MinKernel**: `18.0.0`
 
- Set their **MinKernel** to `18.0.0` 
-* [**AMFIPass.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Acidanthera)
-  * Partially re-enables AMFI, this can be handy if you'll run into permission issues due to AMFI.
+#### For AR946x, AR9485, AR9565 only:
 
- Set **MinKernel**: `20.0.0`
+- **[Ath9kInjector](https://github.com/chunnann/ATH9KFixup/tree/master/ATH9KInjector.kext/Contents)**
+  - **MinKernel**: `18.0.0
+- **[Ath9KFixup](https://github.com/unitedastronomer/ATH9KFixup/releases/tag/1.6.7)** (unitedastronomer fork) 
+  - **MinKernel**: `18.0.0`
+  - Paired with a boot-arg
+    - AR946X: (Default, no need boot-arg)
+    - AR9485: `-ath9485`
+    - AR9565: `-ath9565`
 
-### 2. Device Properties
+#### Add Device Properties
 
-| Key*   | Value      |   Type |
-|--------|------------|--------|
-| IOName |  | String |
-| compatible|  | String |
-| device-id |  | Data |
+| Key*   | Value      |   Type | Description |
+|--------|------------|--------|--------|
+| IOName |  | String | Spoof to a Wi-Fi card used in real Macs. Helps OpenCore Patcher detect, and enable **"Legacy Wireless"** option. |
+| device-id |  | Data | **Note 1:** "...due to AirPortAtheros40 having internal PCI ID checks meaning simply expanding the device-id list won't work." - [Khronokernel](https://github.com/khronokernel/IO80211-Patches?tab=readme-ov-file#unsupported-atheros-chipsets) <br>**Note 2:** Do not use for AR946x, AR9485, AR9565. ATH9KFixup will do it's work. |
+| compatible | | String | Paired with `device-id`, not necessary for AR946x, AR9485, AR9565. |
 
-* `IOName` is spoofed to one of Wi-Fi cards used in real Macs. This way, OpenCore Patcher detects a supported card and enables the option for applying root patches **"Legacy Wireless"**.
-* `compatible` and `device-id` is spoofed "...due to AirPortAtheros40 having internal PCI ID checks meaning simply expanding the device-id list won't work." - [Khronokernel](https://github.com/khronokernel/IO80211-Patches?tab=readme-ov-file#unsupported-atheros-chipsets)
-
-device-ids supported by the kext:
+List of devices supported by AirportAtheros40:
 ||`IOName` and `compatible`|`device-id`|Note|
 |-|-|-|-|
 |AR93xx Wireless Network Adapter| pci168c,30 | 30000000 | Used in iMac12,x |
@@ -39,18 +58,17 @@ device-ids supported by the kext:
 
 Example:
 * AR9287 has an IOName of `pci168c,2e`, can set its `IOName` and `compatible` to `pci168c,2a`, and its `device-id` to `2A000000`.
-  
 * AR9485 with an IOName `pci168c,32`, can set its `IOName` and `compatible` to `pci168c,30`, and its `device-id` to `30000000`.
 
-Choose the closest.
+Choose the closest one.
 
-### 3. Misc 
+#### Misc 
 
 - Set Secure Boot Model to `Disabled`.
      - Changing the secure boot status requires an NVRAM reset, or variables retained can cause issues with IMG4 verification in macOS.
        - According to [Khronokernel](https://github.com/mrlimerunner/sonoma-wifi-hacks?tab=readme-ov-file#pre-root-patching)
- 
-### 4. NVRAM
+
+#### NVRAM
 
 Add the following NVRAM parameters under `Add` and `Delete`:
 
