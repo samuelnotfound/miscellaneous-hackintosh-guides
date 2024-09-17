@@ -1,4 +1,4 @@
-# Restore Wi-Fi for Atheros on macOS 12.x-15.x
+# Restore Wi-Fi for Atheros on macOS Monterey to Sequoia
 Supported chipsets that had support dropped in Mojave, these include:
 
 - AR242x
