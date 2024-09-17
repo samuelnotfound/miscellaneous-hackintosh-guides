@@ -30,7 +30,7 @@ Supported but requires additional patches:
 #### For AR946x, AR9485, AR9565 only:
 
 - **[Ath9kInjector](https://github.com/chunnann/ATH9KFixup/tree/master/ATH9KInjector.kext/Contents)**
-  - **MinKernel**: `18.0.0
+  - **MinKernel**: `18.0.0`
 - **[Ath9KFixup](https://github.com/unitedastronomer/ATH9KFixup/releases/tag/1.6.7)** (unitedastronomer fork) 
   - **MinKernel**: `18.0.0`
   - Paired with a boot-arg
@@ -43,7 +43,7 @@ Supported but requires additional patches:
 | Key*   | Value      |   Type | Description |
 |--------|------------|--------|--------|
 | IOName |  | String | Spoof to a Wi-Fi card used in real Macs. Helps OpenCore Patcher detect, and enable **"Legacy Wireless"** option. |
-| device-id |  | Data | **Note 1:** "...due to AirPortAtheros40 having internal PCI ID checks meaning simply expanding the device-id list won't work." - [Khronokernel](https://github.com/khronokernel/IO80211-Patches?tab=readme-ov-file#unsupported-atheros-chipsets) <br>**Note 2:** Do not use for AR946x, AR9485, AR9565. ATH9KFixup will do it's work. |
+| device-id |  | Data | **Note 1:** "...due to AirPortAtheros40 having internal PCI ID checks meaning simply expanding the device-id list won't work." - [Khronokernel](https://github.com/khronokernel/IO80211-Patches?tab=readme-ov-file#unsupported-atheros-chipsets) <br>**Note 2:** Do not use for AR946x, AR9485, AR9565. ATH9KFixup and Ath9kInjector will do its work. |
 | compatible | | String | Paired with `device-id`, not necessary for AR946x, AR9485, AR9565. |
 
 List of devices supported by AirportAtheros40:
@@ -80,7 +80,10 @@ Add the following NVRAM parameters under `Add` and `Delete`:
 - `ipc_control_port_options=0`: workaround if you run into issues with Electron based apps after disabling SIP, ie: *Discord*, *Google Chrome*, *VS Code*.
 - `amfi=0x80`: disables AMFI, required in order for OCLP to appply root patches.
 -  `csr-active-config` of `03080000` sets SIP (System Integrity Protection) to a reduced state.
-
+-  Add this boot-arg depending on your card:
+    - AR946X: (Default, Ath9kFixup will automatically apply patches for this card)
+    - AR9485: `-ath9485`
+    - AR9565: `-ath9565`
 
 Once the changes have been applied, reboot, reset your NVRAM, and OpenCore Legacy Patcher should now show the option to apply root patches.
 
