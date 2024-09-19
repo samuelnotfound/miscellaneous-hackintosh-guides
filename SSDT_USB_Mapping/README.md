@@ -1,38 +1,24 @@
 # Mapping USB ports via ACPI without Replacement table
-
+* Some information are based from [5T33Z0's ACPI USB Mapping guide](https://github.com/5T33Z0/OC-Little-Translated/tree/main/03_USB_Fixes/ACPI_Mapping_USB_Ports).
 > [!NOTE]  
 > ⚠️ Disclaimer: This guide is not written by a developer, proceed at your own risk. It is still recommended to map USB using tools such as [USBMap](https://github.com/corpnewt/USBMap), or [USBToolBox](https://github.com/USBToolBox/tool). 
 
 Advantage of this method compared to other known methods:
 
 * macOS independent!
-* No dropping of SSDT
 * No _UPC to XUPC rename! 🎉
 
 ### Overview
-
-For Broadwell and older, USB ports are enumerated in DSDT. Each USB port is enumerated under USB Root Hub `RHUB` for (eXtensible Host Controller), and `HUBN` for EHC (Enhanced Host Controller). Each port has a `_UPC` method, which indicates whether the port is **active** and specifies its **type**. 
+ACPI tables for Broadwell and older Intel CPUs don't use separate SSDTs for mapping USB ports – they are enumerated in DSDT. Each USB port is enumerated under USB Root Hub `RHUB` for XHC (eXtensible Host Controller), and `HUBN` for EHC (Enhanced Host Controller). Each port has a `_UPC` method, which indicates whether the port is **active** and specifies its **type**. 
 
 ```asl
-// Example:
-
-Device (HS01) // The USB Port HS01
+_UPC, Package ()
 {
-    Name (_ADR, One) 
-    Name (_STA, 0x0F) 
+    0x00, // 0xFF = On , Zero = Off
+    0x00, // USB Port Type
+    0x00,
+    0x00
 
-    Method (_UPC, 0, Serialized)  
-    {
-        Name (UPCP, Package (0x04)
-        {
-            0xFF, // 0xFF = On , Zero = Off
-            0x03, // USB port type
-            Zero,
-            Zero 
-        })
-        Return (UPCP)
-    }
-}
 ```
 
 The following values for USB port types are possible:
@@ -52,18 +38,26 @@ The following values for USB port types are possible:
 | **`0x0A`** | USB Type `C` (w/o Switch)            |
 | **`0xFF`** | Internal (e.g, Bluetooth and Camera) |
 
-Information regarding `_UPC` can be found in [ACPI Specification](https://uefi.org/sites/default/files/resources/ACPI_Spec_6_5_Aug29.pdf), ≈ p. 570. 
+**UBS-C Switches:** if both sides of a USB-C connector are plugged into the same physical port and hackintool uses the same port for it, than the connected device has a switch. In other words: 2 sides, 1 port = switch. Conversely, if both sides of the same connector occupy two ports, it has no switch.
 
 ## Approach
 
 In order to build our own USB port map via SSDT, we will do the following:
 
-1. **Rename USB Controller** if needed. Such as `XHC1` to `SHCI`.
-2. **Disable the `RHUB` (XHC Controller' Hub) and/or `HUBN` (EHC Controller's Hub):** This disables the `_UPC` methods under each port of the hub.
-3. **Add `XHUB` and/or `HUBX` as Replacements:** Replace `RHUB` with `XHUB` and `HUBN` with `HUBX`.
-4. **Assign the `_ADR` of the Original Hubs:** `XHUB` takes over the address of `RHUB`, and `HUBX` for `HUBN`.
-5. **Enumerate active ports and assign `_ADR`:** Identify the active ports, and enumerate them under these new hubs. Add `_ADR` of each active port taken from the original ports from `RHUB` and/or `XHUB`.
-6. **Adjust `_UPC` of Active Ports**
+1. **Rename USB Controller** if needed, such as `XHC1` to `SHCI`.
+2. **Disable `RHUB` and/or `HUBN`:**
+   * Only disabled under macOS, enabled for other OS.
+   * This also disables the `_UPC` methods of each port under `RHUB` and `HUBN`.
+4. **Add `XHUB` and/or `HUBX`:**
+   * Only enabled under macOS, disabled for for other OS.
+6. **Give the `_ADR` of the original hubs to the new one:**
+   * `XHUB` takes over the of `RHUB`, and `HUBX` for `HUBN` under macOS.
+   * Basically `RHUB` will be exposed under windows, and `XHUB` will be under macOS.
+8. **Enumerate active ports and assign `_ADR`:**
+   * Enumerate the active ports under these new hubs.
+   * Add `_ADR` of each active port taken from the original ports from `RHUB` and/or `XHUB`.
+     * ex. if HSO1's `_ADR` under `RHUB` is `0x01`, then take that `_ADR` and give to the re-enumerated port under the new `XHUB`.
+10. **Adjust `_UPC` of Active Ports**
 
 ## Renaming USB Controller
 
@@ -120,16 +114,12 @@ Certain USB controllers needs to be renamed. Refer to the Dortania's [OpenCore I
 > [!IMPORTANT]  
 > If your USB controller's name needs a rename, **apply** it, then **restart** before proceeding to next part. 
 
-#### 1. USB Controller's Hub ACPI-path
-
+#### 1. USB Controller's ACPI Name
 <img align="center" src="./reference/hub_path.png" alt="hub_path" width="400">
 
  IOACPIPlane:/`_SB`/`PCI0`@0/`XHC`@14000000
 
-* USB ports of XHC/SHCI are enumerated under its `RHUB`.
-  * `_SB.PCI0.XHC.RHUB` 
-* USB ports of EHC/EH01/EH02, are enumerated under its `HUBN`. 
-  * ex: `_SB.PCI0.EH01.HUBN` 
+In this case, USB controller's ACPI Name is `XHC`, so disable the `RHUB` add the `XHUB` under `XHC`.
 
 #### 2. `_ADR` of each port 
 <img align="center" src="./reference/port_adr.png" alt="port_adr" width="400">
@@ -145,7 +135,8 @@ Certain USB controllers needs to be renamed. Refer to the Dortania's [OpenCore I
 ##### Now do that for each active ports.
 
 > [!NOTE]  
-> Some ports may function as internal hubs and will have ports under them. Treat each internal hub port distinct from its child ports. For instance, if PR01 is an (internal) hub port with a child port PR11 (USB 2.0), you should list PR01 and PR11 as separate ports.
+> Some ports may function as integrated hubs, and will have ports under them. Treat each integrated hub port distinct from its child ports. For instance, if `PR01` is an _integrated_ hub port (Internal) with a child port `PR11` (USB 2.0), you should list `PR01` and `PR11` as separate ports.
+> <img align="center" src="https://user-images.githubusercontent.com/76865553/191863871-53de2612-590e-471f-8a8b-85f20f82ec63.png" alt="port_adr" width="400">
 
 #### 3. Download the [`SSDT-USBMAP.dsl`](SSDT_USB_Mapping/SSDT_USBMAP.dsl) and adjust it accordingly.
 
@@ -181,7 +172,7 @@ DefinitionBlock ("", "SSDT", 2, "USBMAP", "USB_MAP", 0x00001000)
 		Scope (\_SB.PCI0.XHC.RHUB)
 	*/
 
-    Device (\_SB.PCI0.EH01.HUBX) // Add `HUBX` `Device`
+    Device (\_SB.PCI0.EH01.HUBX) // Add `HUBX` Device
     {
         Name (_ADR, Zero)  // Giving the address of the HUBN to the HUBX. RHUB or HUBN always have it `Zero`.
         Method (_STA, 0, NotSerialized)  
@@ -199,7 +190,7 @@ DefinitionBlock ("", "SSDT", 2, "USBMAP", "USB_MAP", 0x00001000)
 
 	/*
 		For XHC/SHCI, add a new device named `XHUB` 
-		Device (\_SB.PCI0.XHC.XHUB).
+		Device (\_SB.PCI0.XHC.XHUB)
 	*/
     
 
@@ -259,10 +250,9 @@ Scope (\_SB.PCI0.EH01.HUBX.PR01) // Referencing the new HUBX's PR01 port
 	}
 }
 ```
-* I cannot guarantee that this is a "one size fits all" method.
-* `_PLD` does exist in ACPI of actual macs, but I am not sure if macOS actually uses it. AFAIK they use kext to map their USB.
+* I cannot guarantee that this could work for all.
+* I had a weird issue where a child port (`PR12`) of an integrated port (`PRO1`) is incorrectly identifying as (`PR02`) under hackintool. It is acting like it was direct child port of `HUBX` rather than a child port of that integrated port. 
+* `_PLD` does exist in ACPI of actual macs, but I am not sure if macOS actually uses it. 
 * The idea of `_STA`ing, and re-assigning `_ADR` was inspired by SSDT-USB-Reset generated by USBMap, and  SSDT-RHUB.
-* This guide lacks information regarding the 3rd Byte in the `_UPC` method for USB-C port (capabilities), please refer to the ACPI Specification.
-* Information in this guide is based from ACPI Specification, and [5T33Z0's ACPI USB Mapping guide](https://github.com/5T33Z0/OC-Little-Translated/tree/main/03_USB_Fixes/ACPI_Mapping_USB_Ports).
 * If USBToolBox.kext + UTBMap.kext, or USBMap.kext are present/turned on in your config, this USB mapping will be ignored by macOS.
-* This SSDT is **not necessary**, but useful if you want to share your config and prefer having USBMap.kext. USBMap.kext is SMBIOS dependent, if someone tries your config and changes the SMBIOS, this SSDT will be the fallback USB Map.
+* This SSDT is **not necessary**, but useful if you want to share your config and prefer having USBMap.kext. USBMap.kext is SMBIOS dependent, so if someone tries your config and changes the SMBIOS, this SSDT will be the fallback USB Map.
