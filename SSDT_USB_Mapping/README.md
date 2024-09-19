@@ -11,7 +11,7 @@ Advantage of this method compared to other known methods:
 
 ### Overview
 
-Each USB port in DSDT/SSDT has a method called `_UPC`. This method indicates whether the port is **active** and specifies its **type**. 
+For Broadwell and older, USB ports are enumerated in DSDT. Each USB port is enumerated under USB Root Hub `RHUB` for (eXtensible Host Controller), and `HUBN` for EHC (Enhanced Host Controller). Each port has a `_UPC` method, which indicates whether the port is **active** and specifies its **type**. 
 
 ```asl
 // Example:
@@ -58,7 +58,7 @@ Information regarding `_UPC` can be found in [ACPI Specification](https://uefi.o
 
 In order to build our own USB port map via SSDT, we will do the following:
 
-1. **Rename USB Controller** if needed.
+1. **Rename USB Controller** if needed. Such as `XHC1` to `SHCI`.
 2. **Disable the `RHUB` (XHC Controller' Hub) and/or `HUBN` (EHC Controller's Hub):** This disables the `_UPC` methods under each port of the hub.
 3. **Add `XHUB` and/or `HUBX` as Replacements:** Replace `RHUB` with `XHUB` and `HUBN` with `HUBX`.
 4. **Assign the `_ADR` of the Original Hubs:** `XHUB` takes over the address of `RHUB`, and `HUBX` for `HUBN`.
