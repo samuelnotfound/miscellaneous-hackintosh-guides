@@ -236,6 +236,7 @@ DefinitionBlock ("", "SSDT", 2, "USBMAP", "USB_MAP", 0x00001000)
 }
 
 ```
+Save as an **.aml** file.
 
 ## Notes
 
