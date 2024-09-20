@@ -136,7 +136,8 @@ In this case, USB controller's ACPI Name is `XHC`, so disable the `RHUB` add the
 
 > [!NOTE]  
 > Some ports may function as integrated hubs, and will have ports under them. Treat each integrated hub port distinct from its child ports. For instance, if `PR01` is an _integrated_ hub port (Internal) with a child port `PR11` (USB 2.0), you should list `PR01` and `PR11` as separate ports.
-> <img align="center" src="https://user-images.githubusercontent.com/76865553/191863871-53de2612-590e-471f-8a8b-85f20f82ec63.png" alt="port_adr" width="400">
+
+<img align="center" src="https://user-images.githubusercontent.com/76865553/191863871-53de2612-590e-471f-8a8b-85f20f82ec63.png" alt="port_adr" width="400">
 
 #### 3. Download the [`SSDT-USBMAP.dsl`](SSDT_USB_Mapping/SSDT_USBMAP.dsl) and adjust it accordingly.
 
