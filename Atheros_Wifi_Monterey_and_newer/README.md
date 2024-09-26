@@ -11,7 +11,7 @@ Supported chipsets that had support dropped in Mojave, these include:
 - AR9380 - AR5BXB112
 <br>
 
-Supported but requires additional patches:
+Supported through High Sierra (also dropped in Mojave) but requires additional patches:
 
 - AR946x (AR9462 & AR9463)
 - AR9485
