@@ -1,6 +1,8 @@
 # Restore Wi-Fi for Atheros on macOS Monterey to Sequoia
 
-Apple had dropped support for Atheros cards on macOS Mojave. It now requires injecting old kexts starting Mojave, and installing patches using OCLP starting Monterey.
+Apple dropped support for Atheros cards in macOS Mojave. Starting with Mojave, it is necessary to inject older kexts, and from macOS Monterey onward, patches need to be installed using OpenCore Legacy Patcher (OCLP).
+
+
 
 Supported chipsets that had support dropped in Mojave, these include:
 
