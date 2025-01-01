@@ -15,13 +15,13 @@ Supported chipsets that had support dropped in Mojave, these include:
 - AR9287 - AR5B97
 - AR9380 - AR5BXB112
 
-Supported but requires spoofing:
+Supported but required spoofing:
 
 - AR946x (AR9462 & AR9463)
 - AR9485
 - AR9565
 
-#### Download:
+#### Add Kernel Extensions:
 
 - [**AMFIPass.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Acidanthera)
   -  **MinKernel**: `20.0.0`
@@ -42,12 +42,12 @@ Supported but requires spoofing:
 List of devices supported by AirportAtheros40:
 ||`IOName` and `compatible`|`device-id`|Note|
 |-|-|-|-|
-|AR93xx Wireless Network Adapter| pci168c,30 | 30000000 | Used in iMac12,x |
-|AR928X Wireless Network Adapter| pci168c,2a | 2A000000 | Used in iMac11,x |
+|AR93xx| pci168c,30 | 30000000 | Used in iMac12,x |
+|AR928X| pci168c,2a | 2A000000 | Used in iMac11,x |
 || pci106b,0086 | 00860000 ||  
-|AR242x / AR542x Wireless Network Adapter | pci168c,1c | 1C000000 ||
-|AR5416 Wireless Network Adapter | pci168c,23 | 23000000 ||
-|AR5418 Wireless Network Adapter| pci168c,24 | 24000000 ||
+|AR242x / AR542x| pci168c,1c | 1C000000 ||
+|AR5416| pci168c,23 | 23000000 ||
+|AR5418| pci168c,24 | 24000000 ||
 
 Example:
 * AR9287 has an IOName of `pci168c,2e`, can set its `IOName` and `compatible` to `pci168c,2a`, and its `device-id` to `2A000000`.
