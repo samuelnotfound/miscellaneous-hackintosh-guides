@@ -63,7 +63,7 @@ Example:
 * AR9485 with an IOName `pci168c,32`, can set its `IOName` and `compatible` to `pci168c,30`, and its `device-id` to `30000000`.
 - Choose the closest one.
 
-The order should be something like this:<br>
+The should be something like this:<br>
 
 **DeviceProperties**<br>
 └── **Add**<br>
