@@ -1,8 +1,6 @@
 # Restore Wi-Fi for Atheros on macOS Monterey to Sequoia
 
-Apple dropped support for Atheros cards in macOS Mojave. Starting with Mojave, it is necessary to inject older kexts, and from macOS Monterey onward, patches need to be installed using OpenCore Legacy Patcher (OCLP).
-
-
+Apple dropped support for Atheros cards in macOS Mojave. Starting with Mojave, it is necessary to inject older versions of kexts. Starting from Monterey, additional patches are needed to be installed using OpenCore Legacy Patcher (OCLP).
 
 Supported chipsets that had support dropped in Mojave, these include:
 
@@ -24,12 +22,16 @@ Supported but required spoofing:
 #### Add Kernel Extensions:
 
 - [**AMFIPass.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Acidanthera)
-  -  **MinKernel**: `20.0.0`
-* [**corecaptureElCap.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Wifi)
-  -  **MinKernel**: `18.0.0`
-* [**IO80211ElCap.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Wifi)
-  * Only keep **AirportAtheros40.kext** in its Plugins folder
-  * **MinKernel**: `18.0.0`
+- [**corecaptureElCap.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Wifi)
+- [**IO80211ElCap.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Wifi)
+  * Right-click, and open.
+     - Navigate to the Plugins folder.
+     - You’ll find three kexts in the folder. Delete the other two kexts and keep only **AirportAtheros40.kext**.
+
+Add the kexts inside your `EFI/OC/Kexts` folder, and do an OC Snapshot if you're using Propertree.
+
+ - Set **MinKernel**: `20.0.0` for AMFIPass
+- Set **MinKernel**: `18.0.0` for IO80211 and AirportAtheros 40
 
 #### Add Device Properties
 
@@ -52,6 +54,8 @@ List of devices supported by AirportAtheros40:
 Example:
 * AR9287 has an IOName of `pci168c,2e`, can set its `IOName` and `compatible` to `pci168c,2a`, and its `device-id` to `2A000000`.
 * AR9485 with an IOName `pci168c,32`, can set its `IOName` and `compatible` to `pci168c,30`, and its `device-id` to `30000000`.
+
+
 
 Choose the closest one.
 
