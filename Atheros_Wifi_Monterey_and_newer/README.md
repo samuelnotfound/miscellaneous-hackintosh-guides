@@ -19,7 +19,7 @@ Supported but required spoofing:
 - AR9485
 - AR9565
 
-#### Add Kernel Extensions:
+#### Kernel Extensions:
 
 - [**AMFIPass.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Acidanthera)
 - [**corecaptureElCap.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Wifi)
@@ -33,7 +33,24 @@ Add the kexts inside your `EFI/OC/Kexts` folder, and do an OC Snapshot if you're
  - Set **MinKernel**: `20.0.0` for AMFIPass
 - Set **MinKernel**: `18.0.0` for IO80211 and AirportAtheros 40
 
-#### Add Device Properties
+#### Device Properties
+
+This part is only needed for devices that needs spoofing, if your device-id is natively supported by the kext then you can proceed to the next part.
+
+These are the cards supported by AirportAtheros40 out of the box, choose one from the following to spoof. 
+
+||`IOName` and `compatible`|`device-id`|Note|
+|-|-|-|-|
+|AR93xx| pci168c,30 | 30000000 | Used in iMac12,x |
+|AR928X| pci168c,2a | 2A000000 | Used in iMac11,x |
+|| pci106b,0086 | 00860000 | Unknown |  
+|AR242x / AR542x| pci168c,1c | 1C000000 ||
+|AR5416| pci168c,23 | 23000000 ||
+|AR5418| pci168c,24 | 24000000 ||
+
+1. Identify your Wi-Fi card's device path using Hackintool.
+
+2. Add the following properties:
 
 | Key*   | Value      |   Type | Description |
 |--------|------------|--------|--------|
@@ -41,23 +58,21 @@ Add the kexts inside your `EFI/OC/Kexts` folder, and do an OC Snapshot if you're
 | device-id |  | Data | For cards that needs spoofing <i>" "...due to AirPortAtheros40 having internal PCI ID checks meaning simply expanding the device-id list won't work."</i> - [Khronokernel](https://github.com/khronokernel/IO80211-Patches?tab=readme-ov-file#unsupported-atheros-chipsets) |
 | compatible | | String | Additional spoof|
 
-List of devices supported by AirportAtheros40:
-||`IOName` and `compatible`|`device-id`|Note|
-|-|-|-|-|
-|AR93xx| pci168c,30 | 30000000 | Used in iMac12,x |
-|AR928X| pci168c,2a | 2A000000 | Used in iMac11,x |
-|| pci106b,0086 | 00860000 ||  
-|AR242x / AR542x| pci168c,1c | 1C000000 ||
-|AR5416| pci168c,23 | 23000000 ||
-|AR5418| pci168c,24 | 24000000 ||
-
 Example:
 * AR9287 has an IOName of `pci168c,2e`, can set its `IOName` and `compatible` to `pci168c,2a`, and its `device-id` to `2A000000`.
 * AR9485 with an IOName `pci168c,32`, can set its `IOName` and `compatible` to `pci168c,30`, and its `device-id` to `30000000`.
+- Choose the closest one.
 
+The order should be something like this:<br>
 
+**DeviceProperties**<br>
+└── **Add**<br>
+‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎ㅤ└── **PciRoot(0x0)/Pci(0x1c,0x3)/Pci(0x0,0x0)**<br>
+ㅤㅤ├── device-id → Data → 2A000000<br>
+ㅤㅤ├── compatible → String → pci168c,2a<br>
+ㅤㅤ└── IOName → String → pci168c,2a
 
-Choose the closest one.
+For certain AR9285/7 and AR9280 chipsets, they may report different ID so you will also need to apply spoof.
 
 #### Misc 
 
@@ -147,7 +162,8 @@ You can now see the `IOName` is properly injected/spoofed. OCLP will now recogni
 Open the OCLP app, then apply root patches.
 
 # Bluetooth (Monterey+)
-Use TP-Link UB400, and add `Bluetoolfixup.kext`.
+- Use TP-Link UB400, and add `Bluetoolfixup.kext`.
+- You will also need to hide the internal bluetooth by disabling the USB port in USBMap.
 
 # Other Important Notes: 
 - Once your root volume has been patched, SIP must remain at least partially disabled, or you will not be able to properly boot your system.
