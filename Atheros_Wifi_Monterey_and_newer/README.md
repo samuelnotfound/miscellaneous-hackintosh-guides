@@ -35,7 +35,7 @@ Add the kexts inside your `EFI/OC/Kexts` folder, and do an OC Snapshot if you're
 
 #### Device Properties
 
-This part is only needed for devices that needs spoofing, if your device-id is natively supported by the kext then you can proceed to the next part.
+This part is only needed for devices that needs spoofing.
 
 These are the cards supported by AirportAtheros40 out of the box, choose one from the following to spoof. 
 
@@ -59,7 +59,7 @@ These are the cards supported by AirportAtheros40 out of the box, choose one fro
 | compatible | | String | Additional spoof|
 
 Example:
-* AR9287 has an IOName of `pci168c,2e`, can set its `IOName` and `compatible` to `pci168c,2a`, and its `device-id` to `2A000000`.
+* AR9287 has an IOName of `pci168c,2e`, can set its `IOName` and `compatible` to `pci168c,2a`, and its `device-id` to `2A000000`. 
 * AR9485 with an IOName `pci168c,32`, can set its `IOName` and `compatible` to `pci168c,30`, and its `device-id` to `30000000`.
 - Choose the closest one.
 
