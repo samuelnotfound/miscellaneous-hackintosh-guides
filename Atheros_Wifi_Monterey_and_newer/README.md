@@ -104,12 +104,13 @@ Once the changes have been applied, reboot, reset your NVRAM. OpenCore Legacy Pa
 
 ### Issue Overview
 If you have already followed the guide above, but OCLP does not prompt a "**Legacy Wireless**", then your Wifi card is not enumerated in ACPI at all. OpenCore can only overwrite properties for named devices in ACPI.
+If OCLP does show "**Available patches: Legacy Wireless**", that means OpenCore successfully loaded the device properties we injected and you don't need to follow this guide.
 
 #### Example:
 In this case, it ends with `pci168c,36`, which tells us it's **unnamed** (not a four letter name), the `IOName` we try to inject/spoof is **not** applied.
 ![](screenshots/hackintool_pcie_tab.png)
 
-If it has a name such as `ARPT`(has a four letter name), the `IOName` we try to inject/spoof is applied.
+If it has a name such as `ARPT` (or any four letter name, such as `PXSX` etc.), the `IOName` we try to inject/spoof is applied.
 ![](screenshots/hackintool_pci1683,36_to_ARPT.png)
 
 
@@ -171,7 +172,7 @@ Open the OCLP app, then apply root patches.
 
 This option is another way to make AR9565 Wi-Fi card work:
 - Import the patches from AR9565.plist to your config, this plist includes patches taken from ATH9kFixup that patches the AirportAtheros40.kext on boot.
-  - You can use SSDTTime's PatchMerge, or OCAT, (or OpenCore Configurator - it is easy to use, but not recommended as this app may randomly corrupt your config.plist) to import them to your config.plist.
+  - You can use CorpNewt's PatchMerge tool, or OCAT, (or OpenCore Configurator - it is easy to use, but not recommended as this app may randomly corrupt your config.plist) to import them to your config.plist.
 - If you've followed PG7's tutorials on YouTube, you might have seen him use a patched kext shared by Chunnan on InsanelyMac. That kext is patched with the same fixes from ATH9kFixup.
 - However, you’ll also need to add the ATH9KInjector.kext, which can be downloaded from BlackDragon's ATH9kFixup repository.
 - You must remove the device-id or compatible device properties, but  leave the IOName property since OpenCore Legacy Patcher (OCLP) requires it to detect _Legacy Wireless_.
