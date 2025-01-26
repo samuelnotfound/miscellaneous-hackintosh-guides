@@ -95,6 +95,8 @@ Add the following NVRAM parameters under `Add` and `Delete`:
 
 Once the changes have been applied, reboot, reset your NVRAM. OpenCore Legacy Patcher should now show the option to apply root patches.
 
+### PLEASE USE THE RELEASE VERSION OF OCLP
+
 # Troubleshoot
 * Cannot connect to Wi-Fi
 	* To work around this, manually connect using the "Other" option in the Wi-Fi menu bar or manually add the network in the "Network" preference pane.
