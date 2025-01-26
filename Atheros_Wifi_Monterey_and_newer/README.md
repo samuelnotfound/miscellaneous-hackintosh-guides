@@ -19,7 +19,7 @@ Supported but required spoofing:
 - AR9485
 - AR9565
 
-#### Kernel Extensions:
+## Kernel Extensions:
 
 - [**AMFIPass.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Acidanthera)
 - [**corecaptureElCap.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Wifi)
@@ -33,7 +33,7 @@ Add the kexts inside your `EFI/OC/Kexts` folder, and do an OC Snapshot if you're
  - Set **MinKernel**: `20.0.0` for AMFIPass
 - Set **MinKernel**: `18.0.0` for IO80211 and AirportAtheros 40
 
-#### Device Properties
+## Device Properties
 
 This part is only needed for devices that needs spoofing.
 
@@ -64,23 +64,23 @@ Example:
 - Choose the closest one.
 
 It should look something like this:<br>
-
-**DeviceProperties**<br>
-└── **Add**<br>
-‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎ㅤ└── **PciRoot(0x0)/Pci(0x1c,0x3)/Pci(0x0,0x0)**<br>
-ㅤㅤ├── device-id → Data → 2A000000<br>
-ㅤㅤ├── compatible → String → pci168c,2a<br>
+```
+DeviceProperties
+└── Add
+‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎ㅤ└── PciRoot(0x0)/Pci(0x1c,0x3)/Pci(0x0,0x0)
+ㅤㅤ├── device-id → Data → 2A000000
+ㅤㅤ├── compatible → String → pci168c,2a
 ㅤㅤ└── IOName → String → pci168c,2a
-
+```
 For certain AR9285/7 and AR9280 chipsets, they may report different ID so you will also need to apply spoof.
 
-#### Misc 
+## Misc 
 
 - Set Secure Boot Model to `Disabled`.
      - Changing the secure boot status requires an NVRAM reset, or variables retained can cause issues with IMG4 verification in macOS.
        - According to [Khronokernel](https://github.com/mrlimerunner/sonoma-wifi-hacks?tab=readme-ov-file#pre-root-patching)
 
-#### NVRAM
+## NVRAM
 
 Add the following NVRAM parameters under `Add` and `Delete`:
 
