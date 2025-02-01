@@ -1,3 +1,7 @@
+# Restore Wi-Fi for Atheros on macOS Catalina and Big Sur
+
+Follow the guide below except for the **Misc** and **NVRAM** part. Do not include AMFIpass, and no OCLP patching is required.
+
 # Restore Wi-Fi for Atheros on macOS Monterey to Sequoia
 
 Apple dropped support for Atheros cards in macOS Mojave. Starting with Mojave, it is necessary to inject older versions of kexts. Starting from Monterey, additional patches are needed to be installed using OpenCore Legacy Patcher (OCLP).
@@ -95,7 +99,7 @@ Add the following NVRAM parameters under `Add` and `Delete`:
 
 Once the changes have been applied, reboot, reset your NVRAM. OpenCore Legacy Patcher should now show the option to apply root patches.
 
-### PLEASE USE THE RELEASE VERSION OF OCLP
+### PLEASE USE THE RELEASE VERSION OF OCLP 
 
 # Troubleshoot
 * Cannot connect to Wi-Fi
