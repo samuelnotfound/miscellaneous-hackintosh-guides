@@ -179,9 +179,9 @@ Open the OCLP app, then apply root patches.
 This option is another way to make AR9565 Wi-Fi card work:
 - Import the patches from AR9565.plist to your config, this plist includes patches taken from ATH9kFixup that patches the AirportAtheros40.kext on boot.
   - You can use CorpNewt's PatchMerge tool, or OCAT, (or OpenCore Configurator - it is easy to use, but not recommended as this app may randomly corrupt your config.plist) to import them to your config.plist.
-- If you've followed PG7's tutorials on YouTube, you might have seen him use a patched kext shared by Chunnan on InsanelyMac. That kext is patched with the same fixes from ATH9kFixup.
-- However, you’ll also need to add the ATH9KInjector.kext, which can be downloaded from BlackDragon's ATH9kFixup repository.
-- You must remove the device-id or compatible device properties, but  leave the IOName property since OpenCore Legacy Patcher (OCLP) requires it to detect _Legacy Wireless_.
+  - However, you’ll also need to add the ATH9KInjector.kext, which can be downloaded from BlackDragon's ATH9kFixup repository. You must also remove the device-id or compatible device properties, but  leave the IOName property since OpenCore Legacy Patcher (OCLP) requires it to detect _Legacy Wireless_.
+  - If you've followed PG7's tutorials on YouTube, you might have seen him use a patched kext shared by Chunnan on InsanelyMac. That kext is patched with the same fixes from ATH9kFixup.
+
 
 Credits:
 * MrLimeRunner's [sonoma-wifi-hacks](https://github.com/mrlimerunner/sonoma-wifi-hacks/blob/main/README.md) guide.
