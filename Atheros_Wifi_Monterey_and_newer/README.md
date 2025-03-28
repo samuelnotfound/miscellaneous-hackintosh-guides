@@ -23,6 +23,8 @@ Supported but required spoofing:
 - AR9485
 - AR9565
 
+For certain AR9285/7 and AR9280 chipsets, they may report different ID that the kexts won't recognize so you will also need to apply spoof.
+
 ## Kernel Extensions:
 
 - [**AMFIPass.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Acidanthera)
@@ -76,7 +78,6 @@ DeviceProperties
 ㅤㅤ├── compatible → String → pci168c,2a
 ㅤㅤ└── IOName → String → pci168c,2a
 ```
-For certain AR9285/7 and AR9280 chipsets, they may report different ID so you will also need to apply spoof.
 
 ## Misc 
 
