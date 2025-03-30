@@ -1,3 +1,5 @@
+I no longer maintain this guide, please refer to PG7's [tutorial](https://www.insanelymac.com/forum/topic/359007-wifi-atheros-monterey-ventura-sonoma-sequoia-work/) instead.
+
 # Restore Wi-Fi for Atheros on macOS Catalina and Big Sur
 
 Follow the guide below except for the **Misc** and **NVRAM** part. Do not include AMFIpass, and no OCLP patching is required.
