@@ -1,4 +1,4 @@
-I no longer maintain these guides, follow them at you own risk.
+I no longer maintain these guides, follow them at your own risk.
 
 # Restore Support on Legacy Hardwares
 * [Restore Broadcom Ethernet on Big Sur and newer](Broadcom_Ethernet_BigSur_and_newer)
