@@ -69,12 +69,12 @@ DeviceProperties
 ㅤㅤ└── IOName → String → pci168c,2a
 ```
 
-## Misc 
+### 3. Misc 
 
 - Set Secure Boot Model to `Disabled`.
      - Changing the secure boot status requires an NVRAM reset, or variables retained can cause issues with IMG4 verification in macOS. ([source](https://github.com/mrlimerunner/sonoma-wifi-hacks?tab=readme-ov-file#pre-root-patching))
 
-## NVRAM
+### 4. NVRAM
 
 Add the following NVRAM parameters under `Add` and `Delete`:
 
