@@ -2,7 +2,7 @@ Please read the guide carefully before opening an issue!
 
 # Restore Wi-Fi for Atheros on macOS Monterey to Sequoia
 
-Apple dropped the kext/support for Atheros cards in macOS Mojave, and is necessary to inject older versions of kexts. Starting from Monterey, additional patches are needed to be installed using OpenCore Legacy Patcher (OCLP).
+Apple dropped the kext/support for Atheros cards in macOS Mojave, and since then necessary to reinject  kexts taken from older versions of macOS. Starting from Monterey, additional patches are needed to be installed using OpenCore Legacy Patcher (OCLP).
 
 Supported chipsets that had support dropped in Mojave, these include:
 
@@ -25,13 +25,13 @@ For certain AR9285/7 and AR9280 chipsets, they may report different ID that the 
 
 ### 1. Kernel Extensions:
 Add the following kexts to your `EFI/OC/Kexts` and your `config.plist`:
-* [**AMFIPass.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Acidanthera)
-* [**corecaptureElCap.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Wifi)
-* [**IO80211ElCap.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Wifi) (+ AirportAtheros40.kext)
-  * Right-click, and open. Navigate to the Plugins folder, and you’ll find three kexts in the folder. Delete the other two kexts and keep only **AirportAtheros40.kext**.
+1. [**AMFIPass.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Acidanthera)
+2. [**corecaptureElCap.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Wifi)
+3. [**IO80211ElCap.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Wifi)
+-  Right-click, and open. Navigate to the Plugins folder, you’ll see three kexts within the folder. Delete the two and keep **AirportAtheros40.kext**.
+4. **AirportAtheros40.kext** (found under IO80211ElCap.kext/Plugins)
 
-- Set **MinKernel**: `20.0.0` for AMFIPass
-- Set **MinKernel**: `18.0.0` for IO80211 and AirportAtheros40
+ Set **MinKernel**: `20.0.0` for AMFIPass, and `18.0.0` for IO80211 and AirportAtheros40.
 
 ### 2. Device Properties
 
@@ -57,9 +57,10 @@ Add the following kexts to your `EFI/OC/Kexts` and your `config.plist`:
 | compatible | | String | Additional spoof|
 
 Example:
-* AR9287 has an IOName of `pci168c,2e`, can set its `IOName` and `compatible` to `pci168c,2a`, and its `device-id` to `2A000000`. 
-* AR9485 with an IOName `pci168c,32`, can set its `IOName` and `compatible` to `pci168c,30`, and its `device-id` to `30000000`.
-- Choose the closest one.
+* AR9287 has an IOName of `pci168c,2e`, can spoof its `IOName` and `compatible` to `pci168c,2a`, and its `device-id` to `2A000000`. 
+* AR9485 with an IOName `pci168c,32`, can spoof its `IOName` and `compatible` to `pci168c,30`, and its `device-id` to `30000000`.
+
+Choose the closest one.
 
 It should look something like this:<br>
 ```
