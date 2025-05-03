@@ -1,12 +1,6 @@
-I no longer maintain this guide, please refer to PG7's [tutorial](https://www.insanelymac.com/forum/topic/359007-wifi-atheros-monterey-ventura-sonoma-sequoia-work/) instead.
-
-# Restore Wi-Fi for Atheros on macOS Catalina and Big Sur
-
-Follow the guide below except for the **Misc** and **NVRAM** part. Do not include AMFIpass, and no OCLP patching is required.
-
 # Restore Wi-Fi for Atheros on macOS Monterey to Sequoia
 
-Apple dropped support for Atheros cards in macOS Mojave. Starting with Mojave, it is necessary to inject older versions of kexts. Starting from Monterey, additional patches are needed to be installed using OpenCore Legacy Patcher (OCLP).
+Apple dropped the kext/support for Atheros cards in macOS Mojave, and is necessary to inject older versions of kexts. Starting from Monterey, additional patches are needed to be installed using OpenCore Legacy Patcher (OCLP).
 
 Supported chipsets that had support dropped in Mojave, these include:
 
@@ -27,25 +21,19 @@ Supported but required spoofing:
 
 For certain AR9285/7 and AR9280 chipsets, they may report different ID that the kexts won't recognize so you will also need to apply spoof.
 
-## Kernel Extensions:
+### 1. Kernel Extensions:
+Add the following kexts to your `EFI/OC/Kexts` and your `config.plist`:
+* [**AMFIPass.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Acidanthera)
+* [**corecaptureElCap.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Wifi)
+* [**IO80211ElCap.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Wifi) 
+  * Right-click, and open. Navigate to the Plugins folder, and you’ll find three kexts in the folder. Delete the other two kexts and keep only **AirportAtheros40.kext**.
 
-- [**AMFIPass.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Acidanthera)
-- [**corecaptureElCap.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Wifi)
-- [**IO80211ElCap.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Wifi)
-  * Right-click, and open.
-     - Navigate to the Plugins folder.
-     - You’ll find three kexts in the folder. Delete the other two kexts and keep only **AirportAtheros40.kext**.
+- Set **MinKernel**: `20.0.0` for AMFIPass
+- Set **MinKernel**: `18.0.0` for IO80211 and AirportAtheros40
 
-Add the kexts inside your `EFI/OC/Kexts` folder, and do an OC Snapshot if you're using Propertree.
+### 2. Device Properties
 
- - Set **MinKernel**: `20.0.0` for AMFIPass
-- Set **MinKernel**: `18.0.0` for IO80211 and AirportAtheros 40
-
-## Device Properties
-
-This part is only needed for devices that needs spoofing.
-
-These are the cards supported by AirportAtheros40 out of the box, choose one from the following to spoof. 
+**This part is only needed for devices that needs spoofing.** These are the cards supported by AirportAtheros40, choose one from the following to spoof. 
 
 ||`IOName` and `compatible`|`device-id`|Note|
 |-|-|-|-|
@@ -56,14 +44,14 @@ These are the cards supported by AirportAtheros40 out of the box, choose one fro
 |AR5416| pci168c,23 | 23000000 ||
 |AR5418| pci168c,24 | 24000000 ||
 
-1. Identify your Wi-Fi card's device path using Hackintool.
-
-2. Add the following properties:
+1. Identify your Wi-Fi card's device path.
+   - Get the correct PCI device path for your Atheros WiFi card. You can do this with Hackintool. Just find the entry for the Wireless Network Controler, right-click and select "Copy Device Path"
+3. Add the following properties:
 
 | Key*   | Value      |   Type | Description |
 |--------|------------|--------|--------|
 | IOName |  | String | Helps OpenCore Patcher detect, and enable **"Legacy Wireless"** option. |
-| device-id |  | Data | For cards that needs spoofing <i>" "...due to AirPortAtheros40 having internal PCI ID checks meaning simply expanding the device-id list won't work."</i> - [Khronokernel](https://github.com/khronokernel/IO80211-Patches?tab=readme-ov-file#unsupported-atheros-chipsets) |
+| device-id |  | Data | For cards that needs spoofing <i>" "...due to AirPortAtheros40 having internal PCI ID checks meaning simply expanding the device-id list won't work."</i> [source](https://github.com/khronokernel/IO80211-Patches?tab=readme-ov-file#unsupported-atheros-chipsets) |
 | compatible | | String | Additional spoof|
 
 Example:
@@ -84,8 +72,7 @@ DeviceProperties
 ## Misc 
 
 - Set Secure Boot Model to `Disabled`.
-     - Changing the secure boot status requires an NVRAM reset, or variables retained can cause issues with IMG4 verification in macOS.
-       - According to [Khronokernel](https://github.com/mrlimerunner/sonoma-wifi-hacks?tab=readme-ov-file#pre-root-patching)
+     - Changing the secure boot status requires an NVRAM reset, or variables retained can cause issues with IMG4 verification in macOS. ([source](https://github.com/mrlimerunner/sonoma-wifi-hacks?tab=readme-ov-file#pre-root-patching))
 
 ## NVRAM
 
@@ -102,7 +89,7 @@ Add the following NVRAM parameters under `Add` and `Delete`:
 
 Once the changes have been applied, reboot, reset your NVRAM. OpenCore Legacy Patcher should now show the option to apply root patches.
 
-### PLEASE USE THE RELEASE VERSION OF OCLP 
+# PLEASE USE THE RELEASE VERSION OF OCLP 
 
 # Troubleshoot
 * Cannot connect to Wi-Fi
@@ -182,7 +169,7 @@ Open the OCLP app, then apply root patches.
 This option is another way to make AR9565 Wi-Fi card work:
 - Import the patches from AR9565.plist to your config, this plist includes patches taken from ATH9kFixup that patches the AirportAtheros40.kext on boot.
   - You can use CorpNewt's PatchMerge tool, or OCAT, (or OpenCore Configurator - it is easy to use, but not recommended as this app may randomly corrupt your config.plist) to import them to your config.plist.
-  - However, you’ll also need to add the ATH9KInjector.kext, which can be downloaded from BlackDragon's ATH9kFixup repository. You must also remove the device-id or compatible device properties, but  leave the IOName property since OpenCore Legacy Patcher (OCLP) requires it to detect _Legacy Wireless_.
+  - However, you’ll also need to add the ATH9KInjector.kext (**NOT** Ath9kFixup, which can be downloaded from BlackDragon's ATH9kFixup repository. You **MUST** also remove the device-id or compatible device properties, but  leave the IOName property since OpenCore Legacy Patcher (OCLP) requires it to detect _Legacy Wireless_.
   - If you've followed PG7's tutorials on YouTube, you might have seen him use a patched kext shared by Chunnan on InsanelyMac. That kext is patched with the same fixes from ATH9kFixup.
 
 
