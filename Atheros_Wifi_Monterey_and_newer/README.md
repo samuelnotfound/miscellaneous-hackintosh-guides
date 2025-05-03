@@ -27,7 +27,7 @@ For certain AR9285/7 and AR9280 chipsets, they may report different ID that the 
 Add the following kexts to your `EFI/OC/Kexts` and your `config.plist`:
 * [**AMFIPass.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Acidanthera)
 * [**corecaptureElCap.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Wifi)
-* [**IO80211ElCap.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Wifi) 
+* [**IO80211ElCap.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Wifi) (+ AirportAtheros40.kext)
   * Right-click, and open. Navigate to the Plugins folder, and you’ll find three kexts in the folder. Delete the other two kexts and keep only **AirportAtheros40.kext**.
 
 - Set **MinKernel**: `20.0.0` for AMFIPass
