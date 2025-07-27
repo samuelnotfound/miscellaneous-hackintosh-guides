@@ -169,12 +169,6 @@ Open the OCLP app, then apply root patches.
 - Once your root volume has been patched, SIP must remain at least partially disabled, or you will not be able to properly boot your system.
 - Delta updates are unavailable to root-patched systems. Updates will show as the full 12GB+ installers. If necessary, you can revert your patches and update, then re-apply them, but do so at your own risk.
 
-This option is another way to make AR9565 Wi-Fi card work:
-- Import the patches from AR9565.plist to your config, this plist includes patches taken from ATH9kFixup that patches the AirportAtheros40.kext on boot.
-  - You can use CorpNewt's PatchMerge tool, or OCAT, (or OpenCore Configurator - it is easy to use, but not recommended as this app may randomly corrupt your config.plist) to import them to your config.plist.
-  - However, you’ll also need to add the ATH9KInjector.kext (**NOT** Ath9kFixup, which can be downloaded from BlackDragon's ATH9kFixup repository. You **MUST** also remove the device-id or compatible device properties, but  leave the IOName property since OpenCore Legacy Patcher (OCLP) requires it to detect _Legacy Wireless_.
-  - If you've followed PG7's tutorials on YouTube, you might have seen him use a patched kext shared by Chunnan on InsanelyMac. That kext is patched with the same fixes from ATH9kFixup.
-
 
 Credits:
 * MrLimeRunner's [sonoma-wifi-hacks](https://github.com/mrlimerunner/sonoma-wifi-hacks/blob/main/README.md) guide.
