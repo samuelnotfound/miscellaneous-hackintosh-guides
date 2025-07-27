@@ -54,7 +54,7 @@ Add the following kexts to your `EFI/OC/Kexts` and your `config.plist`:
 |--------|------------|--------|--------|
 | IOName |  | String | Helps OpenCore Patcher detect, and enable **"Legacy Wireless"** option. |
 | device-id |  | Data | For cards that needs spoofing <i>" "...due to AirPortAtheros40 having internal PCI ID checks meaning simply expanding the device-id list won't work."</i> [source](https://github.com/khronokernel/IO80211-Patches?tab=readme-ov-file#unsupported-atheros-chipsets) |
-| compatible | | String | Additional spoof|
+| compatible | | String | Additional spoof. **IMPORTANT!**|
 
 Example:
 * AR9287 has an IOName of `pci168c,2e`, can spoof its `IOName` and `compatible` to `pci168c,2a`, and its `device-id` to `2A000000`. 
