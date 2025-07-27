@@ -15,7 +15,7 @@ Supported chipsets that had support dropped in Mojave, these include:
 - AR9287 - AR5B97
 - AR9380 - AR5BXB112
 
-Supported but required spoofing:
+Supported up to Mojave but required spoofing:
 
 - AR946x (AR9462 & AR9463)
 - AR9485
