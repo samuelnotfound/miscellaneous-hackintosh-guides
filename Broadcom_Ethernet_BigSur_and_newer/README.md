@@ -88,7 +88,7 @@ Add the following entry under **Kernel -> Patch**:
 
 ### Cosmetic Model Name Fix (Optional)
 
-To display the correct NIC model name in System Information, add a cosmetic patch under **Kernel -> Patch**.
+To display the correct model name in System Information, add a cosmetic patch under **Kernel -> Patch**.
 
 #### Example Patch (57765 ➔ 57785):
 
