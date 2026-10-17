@@ -1,3 +1,5 @@
+# [USE THIS REFERENCE INSTEAD](https://github.com/5T33Z0/OC-Little-Translated/blob/main/Content/03_USB_Fixes/ACPI_Mapping_USB_Ports/Replace_SSDT/README.md)
+
 # Mapping USB ports via ACPI without Replacement table
 * Some information are based from [5T33Z0's ACPI USB Mapping guide](https://github.com/5T33Z0/OC-Little-Translated/tree/main/03_USB_Fixes/ACPI_Mapping_USB_Ports).
 > [!NOTE]  
