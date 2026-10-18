@@ -1,6 +1,6 @@
 Please read the guide carefully before opening an issue!
 
-# Restore Wi-Fi for Atheros on macOS Monterey to Sequoia
+# Restore Wi-Fi for Atheros on macOS Monterey to Tahoe
 
 Apple dropped the kext/support for Atheros cards in macOS Mojave, and since then necessary to reinject  kexts taken from older versions of macOS. Starting from Monterey, additional patches are needed to be installed using OpenCore Legacy Patcher (OCLP).
 
@@ -15,8 +15,7 @@ Supported chipsets that had support dropped in Mojave, these include:
 - AR9287 - AR5B97
 - AR9380 - AR5BXB112
 
-Supported up to Mojave but required spoofing:
-
+Required spoofing:
 - AR946x (AR9462 & AR9463)
 - AR9485
 - AR9565
@@ -98,6 +97,8 @@ Once the changes have been applied, reboot, reset your NVRAM. OpenCore Legacy Pa
 * Cannot connect to Wi-Fi
 	* To work around this, manually connect using the "Other" option in the Wi-Fi menu bar or manually add the network in the "Network" preference pane.
 
+# Bluetooth (Monterey to Tahoe)
+- Use [Bluetoolfixup.kext.](https://github.com/enigma131/BrcmPatchRAM) from enigma131's fork, follow their instruction.
 
 # Supplemental Guide: Assigning an ACPI Name
 
@@ -160,10 +161,6 @@ You can now see the `IOName` is properly injected/spoofed. OCLP will now recogni
 |![](screenshots/real_ioname.png)|![](screenshots/spoofed_ioname.png)|
 
 Open the OCLP app, then apply root patches.
-
-# Bluetooth (Monterey+)
-- Use TP-Link UB400, and add `Bluetoolfixup.kext`.
-- You will also need to hide the internal bluetooth by disabling the USB port in USBMap.
 
 # Other Important Notes: 
 - Once your root volume has been patched, SIP must remain at least partially disabled, or you will not be able to properly boot your system.
