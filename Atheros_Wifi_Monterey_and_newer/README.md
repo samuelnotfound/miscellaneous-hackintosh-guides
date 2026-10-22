@@ -1,8 +1,45 @@
-Please read the guide carefully before opening an issue!
+# Restore Atheros Bluetooth on macOS Monterey through Tahoe
 
-# Restore Wi-Fi for Atheros on macOS Monterey to Tahoe
+### 1. Install the Bluetooth kernel extensions
 
-Apple dropped the kext/support for Atheros cards in macOS Mojave, and since then necessary to reinject  kexts taken from older versions of macOS. Starting from Monterey, additional patches are needed to be installed using OpenCore Legacy Patcher (OCLP).
+Copy these kernel extensions into `EFI/OC/Kexts` and add enabled entries under `Kernel -> Add` in `config.plist`.
+
+| Kext | `MinKernel` | Source |
+|---|---|---|
+| `BlueToolFixup.kext` | `21.0.0` | [Link](https://github.com/enigma131/BrcmPatchRAM) |
+| `Ath3kBT.kext` | | [Link](https://github.com/zxystd/AthBluetoothFirmware/releases/tag/v1.1.0) |
+
+This is a **modified BlueToolFixup from enigma131's fork**, do not use the upstream build. The modified version includes additional patches for Atheros Bluetooth controllers.
+
+**Do not use `Ath3kBTInjector.kext` on Monterey or later.** If you are dual booting Big Sur or earlier, set its maxKernel to `20.99.99`.
+
+### 2. Enable Atheros Bluetooth patches
+
+In `config.plist`, open:
+
+`NVRAM -> Add -> 7C436110-AB2A-4BBB-A880-FE41995C9F82`
+
+Append the following argument to your existing `boot-args`:
+
+```
+-btlfxath
+```
+
+This enables enigma131's additional Atheros Bluetooth compatibility patches.
+
+Preserve any existing boot arguments needed by your hardware.
+
+### 3. Verify the Bluetooth USB device ID
+
+Some Atheros Bluetooth controllers require their USB vendor and product IDs to be present in:
+
+`Ath3kBT.kext/Contents/Info.plist`
+
+Inspect the `IOKitPersonalities` section and verify that your controller is supported.
+
+# Restore Atheros Wi-Fi on macOS Monterey through Tahoe
+
+Apple removed native support for many older Atheros wireless adapters beginning with macOS Mojave. Restoring them on newer versions requires legacy drivers, and Monterey and later also require OCLP root patches.
 
 Supported chipsets that had support dropped in Mojave, these include:
 
@@ -14,69 +51,90 @@ Supported chipsets that had support dropped in Mojave, these include:
 - AR9285 - AR5B95
 - AR9287 - AR5B97
 - AR9380 - AR5BXB112
+- AR946x* (AR9462 & AR9463)
+- AR9485*
+- AR9565*
 
-Required spoofing:
-- AR946x (AR9462 & AR9463)
-- AR9485
-- AR9565
+<b>* Required Spoofing</b>
 
-For certain AR9285/7 and AR9280 chipsets, they may report different ID that the kexts won't recognize so you will also need to apply spoof.
+### 1. Install the wireless kernel extensions
 
-### 1. Kernel Extensions:
-Add the following kexts to your `EFI/OC/Kexts` and your `config.plist`:
-1. [**AMFIPass.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Acidanthera)
-2. [**corecaptureElCap.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Wifi)
-3. [**IO80211ElCap.kext**](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Wifi)
--  Right-click, and open. Navigate to the Plugins folder, you’ll see three kexts within the folder. Delete the two and keep **AirportAtheros40.kext**.
-4. **AirportAtheros40.kext** (found under IO80211ElCap.kext/Plugins)
+Copy the following kexts to `EFI/OC/Kexts` and add enabled entries under `Kernel -> Add`.
 
- Set **MinKernel**: `20.0.0` for AMFIPass, and `18.0.0` for IO80211 and AirportAtheros40.
+| Kext | `MinKernel` | `MaxKernel` |
+|---|---|---|
+| `AMFIPass.kext` | `20.0.0` | |
+| `corecaptureElCap.kext` | `18.0.0` | |
+| `IO80211ElCap.kext` | `18.0.0` | |
+| `IO80211ElCap.kext/Contents/PlugIns/AirPortAtheros40.kext` | `18.0.0` | `24.99.99` |
+| `AirPortAtheros40-Tahoe.kext` | `25.0.0` | |
 
-### 2. Device Properties
+Downloads:
 
-**This part is only needed for devices that needs spoofing.** These are the cards supported by AirportAtheros40, choose one from the following to spoof. 
+- [OCLP Wi-Fi payloads](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Wifi)
+- [OCLP Acidanthera payloads](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Acidanthera)
 
-||`IOName` and `compatible`|`device-id`|Note|
-|-|-|-|-|
-|AR93xx| pci168c,30 | 30000000 | Used in iMac12,x |
-|AR928X| pci168c,2a | 2A000000 | Used in iMac11,x |
-|| pci106b,0086 | 00860000 | Unknown |  
-|AR242x / AR542x| pci168c,1c | 1C000000 ||
-|AR5416| pci168c,23 | 23000000 ||
-|AR5418| pci168c,24 | 24000000 ||
+**Important:** Use the correct driver for the macOS version:
 
-1. Identify your Wi-Fi card's device path.
-   - Get the correct PCI device path for your Atheros WiFi card. You can do this with Hackintool. Just find the entry for the Wireless Network Controler, right-click and select "Copy Device Path"
-3. Add the following properties:
+- Monterey through Sequoia (Darwin 21–24): nested `AirPortAtheros40.kext`.
+- Tahoe (Darwin 25): `AirPortAtheros40-Tahoe.kext`.
+
+Both entries can remain in the OpenCore configuration when their kernel-version restrictions are correctly set.
+In `IO80211ElCap.kext`, open `Contents/PlugIns` and remove other kexts but retain `AirPortAtheros40.kext`. Other Wi-Fi plug-ins are not needed for this Atheros-only configuration.
+
+## 2. Configure PCI device properties 
+
+Skip this section if your card does not require spoofing.
+
+### 2.1 Identify the Wi-Fi adapter's PCI path
+
+1. Open **Hackintool** and go to the **PCIe** tab.
+2. Find the Atheros card.
+3. Right-click the entry and select **Copy Device Path**.
+4. Find or create that exact path under `DeviceProperties -> Add` in `config.plist`.
+
+### 2.2 Choose a card to spoof
+
+The following IDs are natively supported by `AirPortAtheros40`. 
+
+| Driver family | `IOName` / `compatible` (String) | `device-id` (Data) | Reference |
+| --- | --- | --- | --- |
+| AR93xx | `pci168c,30` | `30000000` | Used by iMac12,x |
+| AR928x | `pci168c,2a` | `2A000000` | Used by iMac11,x |
+| Unknows | `pci106b,86` | `86000000` |  |
+| AR242x / AR542x | `pci168c,1c` | `1C000000` | |
+| AR5416 | `pci168c,23` | `23000000` | |
+| AR5418 | `pci168c,24` | `24000000` | |
+
+### 2.3 Add the injected properties
+
+Under your adapter's `DeviceProperties -> Add` entry, set:
 
 | Key*   | Value      |   Type | Description |
 |--------|------------|--------|--------|
 | IOName |  | String | Helps OpenCore Patcher detect, and enable **"Legacy Wireless"** option. |
-| device-id |  | Data | For cards that needs spoofing <i>" "...due to AirPortAtheros40 having internal PCI ID checks meaning simply expanding the device-id list won't work."</i> [source](https://github.com/khronokernel/IO80211-Patches?tab=readme-ov-file#unsupported-atheros-chipsets) |
-| compatible | | String | Additional spoof. **IMPORTANT!**|
+| device-id |  | Data | For cards that needs spoofing <i>" "...due to AirPortAtheros40 having internal PCI ID checks meaning simply expanding the device-id list won't work."</i> [(Reference)](https://github.com/khronokernel/IO80211-Patches?tab=readme-ov-file#unsupported-atheros-chipsets) |
+| compatible | | String | Advertises a compatible PCI device identity |
 
-Example:
-* AR9287 has an IOName of `pci168c,2e`, can spoof its `IOName` and `compatible` to `pci168c,2a`, and its `device-id` to `2A000000`. 
-* AR9485 with an IOName `pci168c,32`, can spoof its `IOName` and `compatible` to `pci168c,30`, and its `device-id` to `30000000`.
+Examples:
 
-Choose the closest one.
+- **AR9287:** An adapter reporting `pci168c,2e` may be spoofed to `pci168c,2a` with `device-id = 2A000000`.
+- **AR9485:** An adapter reporting `pci168c,32` may be spoofed to `pci168c,30` with `device-id = 30000000`.
 
-It should look something like this:<br>
-```
-DeviceProperties
-└── Add
-‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎ㅤ└── PciRoot(0x0)/Pci(0x1c,0x3)/Pci(0x0,0x0)
-ㅤㅤ├── device-id → Data → 2A000000
-ㅤㅤ├── compatible → String → pci168c,2a
-ㅤㅤ└── IOName → String → pci168c,2a
-```
+These properties must be applied to the actual Wi-Fi device, not merely to its parent PCI bridge.
 
-### 3. Misc 
+## 3. Configure OpenCore security settings
+
+Under `Misc -> Security`, set:
 
 - Set Secure Boot Model to `Disabled`.
-     - Changing the secure boot status requires an NVRAM reset, or variables retained can cause issues with IMG4 verification in macOS. ([source](https://github.com/mrlimerunner/sonoma-wifi-hacks?tab=readme-ov-file#pre-root-patching))
+     - Changing the secure boot status requires an NVRAM reset, or variables retained can cause issues with IMG4 verification in macOS. [(Reference)](https://github.com/mrlimerunner/sonoma-wifi-hacks?tab=readme-ov-file#pre-root-patching)
 
-### 4. NVRAM
+## 4. Configure NVRAM and SIP
+
+In `config.plist`, open:
+
+`NVRAM -> Add -> 7C436110-AB2A-4BBB-A880-FE41995C9F82`
 
 Add the following NVRAM parameters under `Add` and `Delete`:
 
@@ -89,85 +147,103 @@ Add the following NVRAM parameters under `Add` and `Delete`:
 - `amfi=0x80`: disables AMFI, required in order for OCLP to appply root patches.
 -  `csr-active-config` of `03080000` sets SIP (System Integrity Protection) to a reduced state.
 
-Once the changes have been applied, reboot, reset your NVRAM. OpenCore Legacy Patcher should now show the option to apply root patches.
+## 5. Apply OpenCore Legacy Patcher root patches
 
-# PLEASE USE THE RELEASE VERSION OF OCLP 
+Apply OpenCore Legacy Patcher root patches. If **Legacy Wireless** is missing, check the troubleshooting section before applying unrelated patch sets. On unsupported Hackintosh hardware, OCLP's model detection may not behave exactly as it does on an actual Mac.
 
-# Troubleshoot
-* Cannot connect to Wi-Fi
-	* To work around this, manually connect using the "Other" option in the Wi-Fi menu bar or manually add the network in the "Network" preference pane.
+## 6. Troubleshooting
 
-# Bluetooth (Monterey to Tahoe)
-- Use [Bluetoolfixup.kext.](https://github.com/enigma131/BrcmPatchRAM) from enigma131's fork, follow their instruction.
+### Wi-Fi appears, but the network will not connect
 
-# Supplemental Guide: Assigning an ACPI Name
+Try manually joining the network with **Other…** in the Wi-Fi menu or adding it through **System Settings -> Network**. Forgetting and rejoining the network may also help.
 
-### Issue Overview
-If you have already followed the guide above, but OCLP does not prompt a "**Legacy Wireless**", then your Wifi card is not enumerated in ACPI at all. OpenCore can only overwrite properties for named devices in ACPI.
-If OCLP does show "**Available patches: Legacy Wireless**", that means OpenCore successfully loaded the device properties we injected and you don't need to follow this guide.
+### OCLP does not offer “Legacy Wireless”
 
-#### Example:
-In this case, it ends with `pci168c,36`, which tells us it's **unnamed** (not a four letter name), the `IOName` we try to inject/spoof is **not** applied.
-![](screenshots/hackintool_pcie_tab.png)
+Check if your injected PCI path matches the actual adapter, and any required `IOName`, `compatible`, and `device-id` values appear in IORegistry.
 
-If it has a name such as `ARPT` (or any four letter name, such as `PXSX` etc.), the `IOName` we try to inject/spoof is applied.
-![](screenshots/hackintool_pci1683,36_to_ARPT.png)
+If device properties are not being applied and your wireless device lacks an ACPI name, the optional SSDT workaround below may help. **A missing Legacy Wireless option alone does not prove an ACPI naming problem.**
 
+## 7. Advanced: create an ACPI device name (optional)
 
-### Assign an ACPI Name
+Use this only if the Wi-Fi adapter's **device properties are not taking effect** and you have confirmed that its PCI function does not already have a suitable named ACPI device. Do not add a second ACPI device with the same address if one already exists.
 
-1. Download, and run Hackintool
-2. Identify PCI Path, and Debug value
-* Navigate to the PCIe tab. Identify your WiFi card and note its ACPI path and debug values. For instance:
+### 7.1 Inspect the device path
 
-![](screenshots/hackintool_pcie_tab.png)
+In Hackintool's PCIe tab, locate your adapter and inspect its hierarchy. For example:
 
-**`PCI0`**<sup> @0 /</sup> **`RP04`**<sup> @1C,3 /</sup> pci168c,36<sup> @0</sup>
-* Path: PCI0.RP04 - actually the ACPI path for it's parent/PCI Bridge
-* Debug: 02 00 0
+```text
+PCI0 @0 / RP04 @1C,3 / pci168c,36 @0
+```
 
+![Hackintool PCIe device before naming](screenshots/hackintool_pcie_tab.png)
 
-Download the sample SSDT, and edit it according to your values:
+In this example:
+
+- `PCI0.RP04` is the **parent PCI bridge's ACPI path**.
+- `@0` at the end is the **Wi-Fi endpoint's PCI device/function address**.
+- `pci168c,36` is the name shown for the unnamed endpoint, not a four-character ACPI device name.
+
+A named endpoint may appear as `ARPT` (or another four-character ACPI name):
+
+![Hackintool PCIe device after naming](screenshots/hackintool_pci1683,36_to_ARPT.png)
+
+### 7.2 Create an SSDT
+
+Create a source file named `SSDT-ARPT.dsl`:
 
 ```asl
-DefinitionBlock ("", "SSDT", 2, "ARPT", "WIFIPCI", 0x00001000)
+DefinitionBlock ("", "SSDT", 2, "ARPT", "WIFIPCI", 0x00000000)
 {
-    External (_SB_.PCI0.RP04, DeviceObj)  // Replace "PCI0.RP04" with your WiFi's parent/PCI Bridge ACPI path
+    External (\_SB_.PCI0.RP04, DeviceObj)
 
-    Scope (_SB.PCI0.RP04)  // Replace "PCI0.RP04", same as above
+    Scope (\_SB_.PCI0.RP04)
     {
-        Device (ARPT) // We assign a name for "pci168c,36" as "ARPT", "ARPT" is the ACPI name of WiFi card in Macs.
+        Device (ARPT)
         {
-            Name (_ADR, 0x02000000) // Add your debug value here, e.g., "02 00 0" becomes 0x02000000, `00 1C 4` becomes 0x001C40000
+            Name (_ADR, 0x00000000)
         }
     }
 }
 ```
 
-Save the edited SSDT file and add it to your OpenCore ACPI folder. Ensure your config.plist is updated to include the new SSDT by adding it to the ACPI section of your config.plist.
+Replace `PCI0.RP04` with your adapter's **actual parent ACPI bridge path**, and change `_ADR` to match your **Wi-Fi endpoint's PCI device and function**.
 
-After restart, in my case, **PCI0**<sup> @0 /</sup> **RP04**<sup> @1C,3 /</sup> `pci168c,36`<sup> @0</sup> would now be **PCI0**<sup> @0 /</sup> **RP04**<sup> @1C,3 /</sup>`ARPT`<sup> @0</sup>
+**How `_ADR` works:** PCI device numbers occupy the upper 16 bits and function numbers occupy the lower 16 bits:
 
-Before:
-![](screenshots/hackintool_pcie_tab.png)
-After:
-![](screenshots/hackintool_pci1683,36_to_ARPT.png)
+```text
+_ADR = (PCI device number << 16) | PCI function number
 
+Pci(0x0,0x0) → 0x00000000
+Pci(0x2,0x0) → 0x00020000
+Pci(0x1C,0x3) → 0x001C0003
+```
 
-You can now see the `IOName` is properly injected/spoofed. OCLP will now recognize the spoofed `IOName` of an iMac11,x Atheros card - of which OCLP supports.
+Compile the DSL into `SSDT-ARPT.aml` using MaciASL or `iasl`. Then:
 
-|Before|After|
-|-|-|
-|![](screenshots/real_ioname.png)|![](screenshots/spoofed_ioname.png)|
+1. Copy `SSDT-ARPT.aml` to `EFI/OC/ACPI`.
+2. Add and enable the file under `ACPI -> Add` in `config.plist`.
+3. Save the EFI configuration and reboot.
+4. Inspect the adapter in Hackintool or IORegistryExplorer again.
 
-Open the OCLP app, then apply root patches.
+Expected display for this example:
 
-# Other Important Notes: 
-- Once your root volume has been patched, SIP must remain at least partially disabled, or you will not be able to properly boot your system.
-- Delta updates are unavailable to root-patched systems. Updates will show as the full 12GB+ installers. If necessary, you can revert your patches and update, then re-apply them, but do so at your own risk.
+```text
+Before: PCI0 @0 / RP04 @1C,3 / pci168c,36 @0
+After:  PCI0 @0 / RP04 @1C,3 / ARPT @0
+```
 
+| Before | After |
+| --- | --- |
+| ![Original IOName](screenshots/real_ioname.png) | ![Spoofed IOName](screenshots/spoofed_ioname.png) |
 
-Credits:
-* MrLimeRunner's [sonoma-wifi-hacks](https://github.com/mrlimerunner/sonoma-wifi-hacks/blob/main/README.md) guide.
-* [PG7](https://www.insanelymac.com/forum/topic/359007-wifi-atheros-monterey-ventura-sonoma-work/) for the idea
-* [Dortania](https://github.com/dortania/OpenCore-Legacy-Patcher/tree/main/payloads/Kexts/Wifi) Patched kexts, AMFIPass (by DhinakG) 
+Once the injected properties are confirmed, open OCLP again and check whether **Legacy Wireless** becomes available. Apply the root patch if offered.
+
+## Credits and references
+
+- [MrLimeRunner – sonoma-wifi-hacks](https://github.com/mrlimerunner/sonoma-wifi-hacks) — OpenCore and root-patching configuration guidance.
+- [PG7 on InsanelyMac](https://www.insanelymac.com/forum/topic/359007-wifi-atheros-monterey-ventura-sonoma-work/) — Atheros restoration approach.
+- [Dortania – OpenCore Legacy Patcher](https://github.com/dortania/OpenCore-Legacy-Patcher) — Wi-Fi payloads, root patches, and AMFIPass by DhinakG.
+- [khronokernel – IO80211-Patches](https://github.com/khronokernel/IO80211-Patches) — Legacy Atheros PCI IDs and spoofing notes.
+- [ACPI Specification](https://uefi.org/sites/default/files/resources/ACPI_Spec_6_5_Aug29.pdf) — PCI `_ADR` device/function encoding.
+- [enigma131 – BrcmPatchRAM](https://github.com/enigma131/BrcmPatchRAM) — Modified BlueToolFixup with Atheros Bluetooth support.
+- [zxystd – AthBluetoothFirmware](https://github.com/zxystd/AthBluetoothFirmware) — Atheros Bluetooth firmware uploader.
