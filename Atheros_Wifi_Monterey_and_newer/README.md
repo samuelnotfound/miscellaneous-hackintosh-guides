@@ -1,42 +1,3 @@
-# Restore Atheros Bluetooth on macOS Monterey through Tahoe
-
-### 1. Install the Bluetooth kernel extensions
-
-Copy these kernel extensions into `EFI/OC/Kexts` and add enabled entries under `Kernel -> Add` in `config.plist`.
-
-| Kext | `MinKernel` | Source |
-|---|---|---|
-| `BlueToolFixup.kext` | `21.0.0` | [Link](https://github.com/enigma131/BrcmPatchRAM) |
-| `Ath3kBT.kext` | | [Link](https://github.com/zxystd/AthBluetoothFirmware/releases/tag/v1.1.0) |
-
-This is a **modified BlueToolFixup from enigma131's fork**, do not use the upstream build. The modified version includes additional patches for Atheros Bluetooth controllers.
-
-**Do not use `Ath3kBTInjector.kext` on Monterey or later.** If you are dual booting Big Sur or earlier, set its maxKernel to `20.99.99`.
-
-### 2. Enable Atheros Bluetooth patches
-
-In `config.plist`, open:
-
-`NVRAM -> Add -> 7C436110-AB2A-4BBB-A880-FE41995C9F82`
-
-Append the following argument to your existing `boot-args`:
-
-```
--btlfxath
-```
-
-This enables enigma131's additional Atheros Bluetooth compatibility patches.
-
-Preserve any existing boot arguments needed by your hardware.
-
-### 3. Verify the Bluetooth USB device ID
-
-Some Atheros Bluetooth controllers require their USB vendor and product IDs to be present in:
-
-`Ath3kBT.kext/Contents/Info.plist`
-
-Inspect the `IOKitPersonalities` section and verify that your controller is supported.
-
 # Restore Atheros Wi-Fi on macOS Monterey through Tahoe
 
 Apple removed native support for many older Atheros wireless adapters beginning with macOS Mojave. Restoring them on newer versions requires legacy drivers, and Monterey and later also require OCLP root patches.
@@ -237,6 +198,46 @@ After:  PCI0 @0 / RP04 @1C,3 / ARPT @0
 | ![Original IOName](screenshots/real_ioname.png) | ![Spoofed IOName](screenshots/spoofed_ioname.png) |
 
 Once the injected properties are confirmed, open OCLP again and check whether **Legacy Wireless** becomes available. Apply the root patch if offered.
+
+# Restore Atheros Bluetooth on macOS Monterey through Tahoe
+
+### 1. Install the Bluetooth kernel extensions
+
+Copy these kernel extensions into `EFI/OC/Kexts` and add enabled entries under `Kernel -> Add` in `config.plist`.
+
+| Kext | `MinKernel` | Source |
+|---|---|---|
+| `BlueToolFixup.kext` | `21.0.0` | [Link](https://github.com/enigma131/BrcmPatchRAM) |
+| `Ath3kBT.kext` | | [Link](https://github.com/zxystd/AthBluetoothFirmware/releases/tag/v1.1.0) |
+
+This is a **modified BlueToolFixup from enigma131's fork**, do not use the upstream build. The modified version includes additional patches for Atheros Bluetooth controllers.
+
+**Do not use `Ath3kBTInjector.kext` on Monterey or later.** If you are dual booting Big Sur or earlier, set its maxKernel to `20.99.99`.
+
+### 2. Enable Atheros Bluetooth patches
+
+In `config.plist`, open:
+
+`NVRAM -> Add -> 7C436110-AB2A-4BBB-A880-FE41995C9F82`
+
+Append the following argument to your existing `boot-args`:
+
+```
+-btlfxath
+```
+
+This enables enigma131's additional Atheros Bluetooth compatibility patches.
+
+Preserve any existing boot arguments needed by your hardware.
+
+### 3. Verify the Bluetooth USB device ID
+
+Some Atheros Bluetooth controllers require their USB vendor and product IDs to be present in:
+
+`Ath3kBT.kext/Contents/Info.plist`
+
+Inspect the `IOKitPersonalities` section and verify that your controller is supported.
+
 
 ## Credits and references
 
