@@ -1,4 +1,4 @@
-# [USE THIS REFERENCE INSTEAD](https://github.com/5T33Z0/OC-Little-Translated/blob/main/Content/03_USB_Fixes/ACPI_Mapping_USB_Ports/Replace_SSDT/README.md)
+# [USE THIS REFERENCE INSTEAD](https://github.com/5T33Z0/OC-Little-Translated/blob/main/Content/03_USB_Fixes/ACPI_Mapping_USB_Ports/XHUB_Method/README.md)
 
 <details>
 	<summary></summary>
