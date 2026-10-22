@@ -45,6 +45,7 @@ Downloads:
 Both entries can remain in the OpenCore configuration when their kernel-version restrictions are correctly set.
 In `IO80211ElCap.kext`, open `Contents/PlugIns` and remove other kexts but retain `AirPortAtheros40.kext`. Other Wi-Fi plug-ins are not needed for this Atheros-only configuration.
 
+
 ## 2. Configure PCI device properties 
 
 Skip this section if your card does not require spoofing.
@@ -112,7 +113,7 @@ Add the following NVRAM parameters under `Add` and `Delete`:
 
 ## 5. Apply OpenCore Legacy Patcher root patches
 
-Apply OpenCore Legacy Patcher root patches. If **Legacy Wireless** is missing, check the troubleshooting section before applying unrelated patch sets. On unsupported Hackintosh hardware, OCLP's model detection may not behave exactly as it does on an actual Mac.
+**For Tahoe support, you may need to use the Nightly version of OCLP to apply Rooot patches.** If **Legacy Wireless** is missing, check the troubleshooting section before applying unrelated patch sets. On unsupported Hackintosh hardware, OCLP's model detection may not behave exactly as it does on an actual Mac.
 
 ## 6. Troubleshooting
 
