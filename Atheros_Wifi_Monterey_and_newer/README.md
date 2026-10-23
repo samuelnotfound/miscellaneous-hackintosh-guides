@@ -113,7 +113,7 @@ Add the following NVRAM parameters under `Add` and `Delete`:
 
 ## 5. Apply OpenCore Legacy Patcher root patches
 
-**For Tahoe support, you may need to use the Nightly version of OCLP to apply Rooot patches.** If **Legacy Wireless** is missing, check the troubleshooting section before applying unrelated patch sets. On unsupported Hackintosh hardware, OCLP's model detection may not behave exactly as it does on an actual Mac.
+**For Tahoe support, you may need to use the Nightly version of OCLP to apply Root patches.** If **Legacy Wireless** is missing, check the troubleshooting section before applying unrelated patch sets. On unsupported Hackintosh hardware, OCLP's model detection may not behave exactly as it does on an actual Mac.
 
 ## 6. Troubleshooting
 
