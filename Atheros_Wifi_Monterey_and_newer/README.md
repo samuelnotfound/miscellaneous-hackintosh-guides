@@ -1,5 +1,7 @@
 I no longer have access to a Hackintosh system, these guides are no longer actively tested or maintained, and their reliability cannot be guaranteed.
 
+[Wi-Fi](#restore-atheros-wi-fi-on-macos-monterey-through-tahoe) | [Bluetooth](#restore-atheros-bluetooth-on-macos-monterey-through-tahoe)
+
 # Restore Atheros Wi-Fi on macOS Monterey through Tahoe
 
 Apple removed native support for many older Atheros wireless adapters beginning with macOS Mojave. Restoring them on newer versions requires legacy drivers, and Monterey and later also require OCLP root patches.
