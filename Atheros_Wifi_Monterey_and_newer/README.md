@@ -211,7 +211,7 @@ Once the injected properties are confirmed, open OCLP again and check whether **
 
 # Restore Atheros Bluetooth on macOS Monterey through Tahoe
 
-This guide is meant for those Atheros Bluetooth supported by `Ath3kBT.kext` on Big Sur.
+This guide is meant for those Atheros Bluetooth supported by `Ath3kBT.kext` on Big Sur. 
 
 ### 1. Install the Bluetooth kernel extensions
 
@@ -250,6 +250,7 @@ Some Atheros Bluetooth controllers require their USB vendor and product IDs to b
 
 Inspect the `IOKitPersonalities` section and verify that your controller is supported.
 
+### The chipset don't allow power off/on (need to reboot computer if accidentally move slider left).
 
 ## Credits and references
 
