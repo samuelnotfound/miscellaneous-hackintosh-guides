@@ -9,6 +9,8 @@ I no longer have access to a Hackintosh system, these guides are no longer activ
 
 # Restore Atheros Wi-Fi on macOS Monterey through Tahoe
 
+> This guide is meant for those Atheros Cards supported by `AirPortAtheros40` on Big Sur or earlier. 
+
 Apple removed native support for many older Atheros wireless adapters beginning with macOS Mojave. Restoring them on newer versions requires legacy drivers, and Monterey and later also require OCLP root patches.
 
 Supported chipsets that had support dropped in Mojave, these include:
@@ -211,7 +213,7 @@ Once the injected properties are confirmed, open OCLP again and check whether **
 
 # Restore Atheros Bluetooth on macOS Monterey through Tahoe
 
-This guide is meant for those Atheros Bluetooth supported by `Ath3kBT.kext` on Big Sur. 
+> This guide is meant for those Atheros Bluetooth supported by `Ath3kBT.kext` on Big Sur or earlier. 
 
 ### 1. Install the Bluetooth kernel extensions
 
