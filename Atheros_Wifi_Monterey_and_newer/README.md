@@ -2,7 +2,7 @@ I no longer have access to a Hackintosh system, these guides are no longer activ
 
 
 <p align="center">
-  <a href="#restore-atheros-wi-fi-on-macos-monterey-through-tahoe">Wi-Fi</a> •
+  <a href="#restore-atheros-wi-fi-on-macos-monterey-through-tahoe">Wi-Fi</a> |
   <a href="#restore-atheros-bluetooth-on-macos-monterey-through-tahoe">Bluetooth</a>
 </p>
 
