@@ -59,7 +59,7 @@ Download [**CatalinaBCM5701Ethernet.kext**](https://github.com/dortania/OpenCore
 ### OpenCore Configuration
 
 #### 1. Add Device Properties
-In your `config.plist`, navigate to **DeviceProperties -> Add** under your Ethernet controller PCI path (e.g., `PciRoot(0x0)/Pci(0x1C,0x0)/Pci(0x0,0x0)`):
+In your `config.plist`, navigate to **DeviceProperties -> Add** under your Ethernet controller PCI path:
 
 | Key | Type | Value |
 | :--- | :--- | :--- |
