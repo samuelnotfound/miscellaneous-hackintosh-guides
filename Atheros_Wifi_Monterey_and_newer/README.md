@@ -252,8 +252,6 @@ Some Atheros Bluetooth controllers require their USB vendor and product IDs to b
 
 Inspect the `IOKitPersonalities` section and verify that your controller is supported.
 
-### The chipset don't allow power off/on (need to reboot computer if accidentally move slider left).
-
 ## Credits and references
 
 - [MrLimeRunner – sonoma-wifi-hacks](https://github.com/mrlimerunner/sonoma-wifi-hacks) — OpenCore and root-patching configuration guidance.
