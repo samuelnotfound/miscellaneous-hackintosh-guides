@@ -6,6 +6,8 @@ I no longer have access to a Hackintosh system, these guides are no longer activ
   <a href="#restore-atheros-bluetooth-on-macos-monterey-through-tahoe">Bluetooth</a>
 </p>
 
+Before proceeding, the AR9462 & AR9463 cannot work at Tahoe at the moment, reported at [#7](https://github.com/samuelnotfound/miscellaneous-hackintosh-guides/issues/7#issuecomment-6630567384). Tahoe support is currently not guaranteed to work on every cards listed on this guide. You can follow up [on this issue](https://github.com/samuelnotfound/miscellaneous-hackintosh-guides/issues/7#issuecomment-6630567384) if you have a working solution, or just have questions.
+
 
 # Restore Atheros Wi-Fi on macOS Monterey through Tahoe
 
